@@ -1,0 +1,36 @@
+[Event "Rated Classical game"]
+[Site "https://lichess.org/7rrigtow"]
+[White "Delaza62"]
+[Black "crazy2013"]
+[Result "1-0"]
+[UTCDate "2013.01.01"]
+[UTCTime "06:11:25"]
+[WhiteElo "1604"]
+[BlackElo "1734"]
+[WhiteRatingDiff "+13"]
+[BlackRatingDiff "-94"]
+[ECO "A00"]
+[Opening "Polish Opening"]
+[TimeControl "480+5"]
+[Termination "Time forfeit"]
+
+1. b4 d5 2. Bb2 Nd7 3. b5 Ngf6 4. e3 e5 5. a4 Bd6 6. Be2 c6 7. c4 O-O 8. Nf3 Nc5 9. Nxe5 Nfe4 10. O-O Qf6 11. d4 Qg5 12. Bf3 Nb3 13. Ra2 Bxe5 14. dxe5 Nbc5 15. cxd5 cxd5 16. Qxd5 Be6 17. Qd4 Rad8 18. Qb4 Bf5 19. Bd4 Nd3 20. Qb3 1-0
+
+[Event "Rated Blitz game"]
+[Site "https://lichess.org/odq8vllt"]
+[White "psonio"]
+[Black "Chenstix"]
+[Result "1-0"]
+[UTCDate "2013.01.01"]
+[UTCTime "06:11:57"]
+[WhiteElo "1925"]
+[BlackElo "1685"]
+[WhiteRatingDiff "+19"]
+[BlackRatingDiff "-5"]
+[ECO "C00"]
+[Opening "French Defense: Knight Variation"]
+[TimeControl "240+0"]
+[Termination "Normal"]
+
+1. e4 { [%eval 0.31] } 1... e6 { [%eval 0.27] } 2. Nf3 { [%eval 0.13] } 2... d5 { [%eval 0.18] } 3. exd5 { [%eval 0.12] } 3... exd5 { [%eval 0.17] } 4. d4 { [%eval 0.08] } 4... Bd6 { [%eval 0.23] } 5. Bd3 { [%eval 0.07] } 5... Ne7 { [%eval 0.11] } 6. O-O { [%eval 0.1] } 6... Bf5 { [%eval 0.46] } 7. Bxf5 { [%eval 0.43] } 7... Nxf5 { [%eval 0.4] } 8. Qd3 { [%eval 0.46] } 8... Qd7 { [%eval 0.4] } 9. Re1+ { [%eval 0.5] } 9... Ne7 { [%eval 0.41] } 10. Ne5 { [%eval 0.07] } 10... Bxe5 { [%eval 0.16] } 11. dxe5 { [%eval 0.11] } 11... c6 { [%eval 0.16] } 12. c4 { [%eval 0.27] } 12... dxc4 { [%eval 0.37] } 13. Qxc4 { [%eval 0.43] } 13... Nd5 { [%eval 0.54] } 14. Nc3 { [%eval 0.54] } 14... Qe6 { [%eval 0.68] } 15. Ne4 { [%eval 0.36] } 15... Nd7? { [%eval 1.65] } 16. Nd6+ { [%eval 1.7] } 16... Ke7 { [%eval 2.15] } 17. Nxb7 { [%eval 1.71] } 17... Nxe5? { [%eval 3.69] } 18. Qc5+ { [%eval 4.22] } 18... Kd7 { [%eval 3.63] } 19. Bf4?! { [%eval 2.89] } 19... f6 { [%eval 3.05] } 20. Bxe5 { [%eval 2.56] } 20... fxe5 { [%eval 2.91] } 21. Rad1?! { [%eval 2.2] } 21... Rab8?? { [%eval 5.25] } 22. Qxa7 { [%eval 4.79] } 22... Ra8?? { [%eval 16.05] } 23. Nc5+ { [%eval 16.2] } 1-0
+
