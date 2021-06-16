@@ -24,15 +24,15 @@ def write_row(game, conn):
 def format_data(key, val):
     """takes in lichess game key and value and formats the data prior to writing it to the database"""
     if key == "Event":
-        if "bullet" in key.lower():
+        if "bullet" in val.lower():
             val = 'b'
-        elif "blitz" in key.lower():
+        elif "blitz" in val.lower():
             val = 'B'
-        elif "rapid" in key.lower():
+        elif "standard" in val.lower() or "rapid" in val.lower():
             val = 'R'
-        elif "classical" in key.lower():
+        elif "classical" in val.lower():
             val = 'c'
-        elif "correspondence" in key.lower():
+        elif "correspondence" in val.lower():
             val = 'C'
         else:
             val = '?'
@@ -51,7 +51,7 @@ def format_data(key, val):
         if val == "Normal": val = 'N'
         elif val == "Time forfeit": val = 'F'
         elif val == "Abandoned": val = 'A'
-        else: val = '?'
+        else: val = '?'     #usually means cheater detected
     elif key == "TimeControl":
         val = format_time_control(val)
     elif key == "Result":
@@ -59,7 +59,7 @@ def format_data(key, val):
             val = 'D'
         elif val == "1-0":
             val = 'W'
-        elif val = "0-1":
+        elif val == "0-1":
             val = 'B'
         else:
             val = '?'
@@ -67,7 +67,7 @@ def format_data(key, val):
 
 def merge_datetime(game):
     """takes in a game dict and merges the date and time with datetime.combine()"""
-    game['timestamp'] = datetime.combine(game['UTCDate'], game['UTCTime'])
+    game['date_time'] = datetime.combine(game['UTCDate'], game['UTCTime'])
     del game['UTCDate']
     del game['UTCTime']
     return game
@@ -78,7 +78,7 @@ def format_time_control(time_control):
     try:
         time_control = time_control.split("+")
         return int(time_control[0]) + int(time_control[1])*40   
-    except TypeError:
+    except ValueError:
         return None
 
 if __name__ == "__main__":

@@ -16,17 +16,10 @@ def read_lines(bzip_file):
             yield line
 
 if __name__ == "__main__":
-
-    consumer_msgs = []
     producer = KafkaProducer(bootstrap_servers='localhost:9092')
-    lines = read_lines('../data/lichess_db_standard_rated_2013-01.pgn.bz2')
+    lines = read_lines('../data/lichess_db_standard_rated_2018-02.pgn.bz2')
     #for bzip_file in BZ2_DATA:
-        #lines = read_lines('bzip_file')
+    #    lines = read_lines('bzip_file')
     for line in tqdm(lines):
         if len(line) <= 1: continue
         producer.send('ChessGamesTopic', line)
-        #print(f'sent: {line}')
-        #time.sleep(0.2)
-    #producer.flush()
-
-
