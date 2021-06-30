@@ -1,6 +1,6 @@
 from kafka import KafkaConsumer
-from CONFIG import DB_NAME, DB_USER, BATCH_SIZE
-from datetime import datetime
+from CONFIG import DB_NAME, DB_USER, BATCH_SIZE #enter these values in CONFIG.public.py, then change CONFIG to CONFIG.public
+from datetime import datetime                   #or rename CONFIG.public.py to CONFIG.py
 from tqdm import tqdm
 from collections import OrderedDict
 import re
