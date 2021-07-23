@@ -197,10 +197,6 @@ def format_game(game):
             return {}   #throw out the game if any player is "anonymous" with no rating
     except KeyError:
         return {}
-    if 'eval' in line:
-        game["Analyzed"] = True
-    else:
-        game["Analyzed"] = False 
     if "WhiteTitle" not in game:
         game["WhiteTitle"] = None
     if "BlackTitle" not in game:
@@ -247,8 +243,12 @@ if __name__ == "__main__":
                 pass
 
             #checks if the line is describing the moves of a game (the line starts with "1"). 
-            #If so, all the data for the game has been read and we can write the game to database
+            #If so, all the data for the game has been read and we can format the game data
             if line[0] == '1':
+                if 'eval' in line:
+                    game["Analyzed"] = True
+                else:
+                    game["Analyzed"] = False 
                 game = format_game(game)
                 if game:
                     batch.append(game)

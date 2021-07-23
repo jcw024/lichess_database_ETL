@@ -30,7 +30,7 @@ def start_producer(url):
 
 if __name__ == "__main__":
     producer = KafkaProducer(bootstrap_servers='localhost:9092', linger_ms=1000*10000, batch_size=16384*50)
-    lines = read_lines('../data/lichess_db_standard_rated_2013-01.pgn.bz2')
+    lines = read_lines('../data/lichess_db_standard_rated_2013-01.pgn.bak.bz2')
     #for bzip_file in BZ2_DATA:
     #    lines = read_lines('bzip_file')
     for line in tqdm(lines):
