@@ -3,6 +3,7 @@ from CONFIG import DB_NAME, DB_USER, BATCH_SIZE #enter these values in CONFIG.pu
 from datetime import datetime                   #or rename CONFIG.public.py to CONFIG.py
 from tqdm import tqdm
 from collections import OrderedDict
+from psycopg2.errors import InFailedSqlTransaction
 import re
 import psycopg2
 import psycopg2.extras
@@ -22,7 +23,6 @@ def initialize_tables(conn):
             "Termination VARCHAR(1) NOT NULL", "BlackTitle VARCHAR(3)", 
             "WhiteTitle VARCHAR(3)", "Analyzed BOOLEAN NOT NULL", 
             "Date_time timestamp NOT NULL"])
-    print(games_columns)
     cur.execute(
             "CREATE TABLE IF NOT EXISTS games (" + ', '.join(games_columns) + ");"
             )
@@ -34,20 +34,27 @@ def initialize_tables(conn):
             )
     conn.commit()
     #create lookup tables for event, result, ECO?, termination
+    return [col.split(" ")[0] for col in games_columns]
 
-def copy_data(conn, batch, table):
+def copy_data(conn, batch, table, retry=False):
     """takes a list of games and a database connection and inserts into database"""
-    cur = conn.cursor()
-    csv_object = io.StringIO()
-    for item in batch:
-        csv_object.write('|'.join(map(csv_format, item.values())) + '\n')
-    csv_object.seek(0)
     try:
-        cur.copy_from(csv_object, table, sep='|')
-    except psycopg2.errors.UniqueViolation:
-        copy_conflict(csv_object, conn, table)
-    conn.commit()
-    return
+        cur = conn.cursor()
+        csv_object = io.StringIO()
+        for item in batch:
+            csv_object.write('|'.join(map(csv_format, item.values())) + '\n')
+        csv_object.seek(0)
+        try:
+            cur.copy_from(csv_object, table, sep='|')
+        except psycopg2.errors.UniqueViolation:
+            copy_conflict(csv_object, conn, table)
+        conn.commit()
+    except InFailedSqlTransaction:  #if sql transaction fail, do a rollback and retry
+        if not retry:
+            conn.rollback()
+            copy_data(conn, batch, table, retry=True)
+        else: 
+            raise InFailedSqlTransaction
 
 def copy_conflict(csv_object, conn, table):
     csv_object.seek(0)
@@ -83,7 +90,6 @@ def write_row(columns, values, conn, table):
     return True
 
 def dump_dict(data_dict, conn):
-    print("writing user IDs to 'user_IDs' table...")
     id_list = [{"id":i[1],"username":i[0]} for i in data_dict.items()]  #formatting to fit expected input of copy_data function
     copy_data(conn, id_list, "user_IDs")
     conn.commit()
@@ -101,17 +107,19 @@ def load_id_dict(conn):
         id_dict[username] = ID
     return id_dict
 
-def assign_user_ID(username, id_dict):
+def assign_user_ID(username, id_dict, new_id_dict):
     """takes a username and gets the ID or assigns a new one if not already in id_dict
-    returns the ID and id_dict (with the new ID added if a new one was added)"""
+    returns the ID and id_dict (with the new ID added if a new one was added)
+    if a new id was added, it will be added to new_id_dict"""
     if username in id_dict:
-        return id_dict[username], id_dict
+        return id_dict[username], id_dict, new_id_dict
     elif len(id_dict) == 0:
         ID = 1
     else:
         ID = max(id_dict.values()) + 1
     id_dict[username] = ID
-    return ID, id_dict
+    new_id_dict[username] = ID
+    return ID, id_dict, new_id_dict
 
 def format_data(key, val):
     """takes in lichess game key and value and formats the data prior to writing it to the database"""
@@ -159,9 +167,15 @@ def format_data(key, val):
 
 def merge_datetime(game):
     """takes in a game dict and merges the date and time with datetime.combine()"""
-    game['Date_time'] = datetime.combine(game['UTCDate'], game['UTCTime'])
-    del game['UTCDate']
-    del game['UTCTime']
+    try:
+        game['Date_time'] = datetime.combine(game['UTCDate'], game['UTCTime'])
+        del game['UTCDate']
+        del game['UTCTime']
+    except KeyError:
+        if 'UTCDate' in game:
+            del game['UTCDate']
+        if 'UTCTime' in game:
+            del game['UTCTime']
     return game
 
 def format_time_control(time_control):
@@ -176,10 +190,13 @@ def format_time_control(time_control):
 def format_game(game):
     """takes game and adds an 'analyzed' key/value, fills in player titles if not already existing, and formats dates"""
     #game moves are not stored to save disk space, just track if the game has been analyzed or not
-    if any([game[i] is None for i in ["BlackElo", "WhiteElo"]]):
-        return {}   #check if black or white are None, throw game out if yes
-    if any([game[i] is None for i in ["WhiteRatingDiff", "BlackRatingDiff", "WhiteElo", "BlackElo"]]):
-        return {}   #throw out the game if any player is "anonymous" with no rating
+    try:
+        if any([game[i] is None for i in ["BlackElo", "WhiteElo"]]):
+            return {}   #check if black or white are None, throw game out if yes
+        if any([game[i] is None for i in ["WhiteRatingDiff", "BlackRatingDiff", "WhiteElo", "BlackElo"]]):
+            return {}   #throw out the game if any player is "anonymous" with no rating
+    except KeyError:
+        return {}
     if 'eval' in line:
         game["Analyzed"] = True
     else:
@@ -195,8 +212,9 @@ if __name__ == "__main__":
     connect_string = "dbname=" + DB_NAME + " user=" + DB_USER
     conn = psycopg2.connect(connect_string)
     try:    #if any exception, write the id_dict to "user_IDs" database table to record new user_IDs before raising error
-        initialize_tables(conn)         #create necessary tables in postgresql if they don't already exist
+        games_columns = initialize_tables(conn)         #create necessary tables in postgresql if they don't already exist
         id_dict = load_id_dict(conn)    #load dict to assign user IDs to usernames
+        new_id_dict = {}
 
         #setup consumer
         consumer_configs = {
@@ -204,7 +222,7 @@ if __name__ == "__main__":
                 'group_id':'main_group', 
                 'auto_offset_reset':'earliest', 
                 'max_partition_fetch_bytes':1048576*100,
-                'enable_auto_commit':True #whether or not to continue where consumer left off or start over
+                'enable_auto_commit':True   #whether or not to continue where consumer left off or start over
             }
 
         consumer = KafkaConsumer('ChessGamesTopic', **consumer_configs)
@@ -220,8 +238,9 @@ if __name__ == "__main__":
                 key = re.search("\[(.*?) ",line).group(1)
                 val = re.search(" \"(.*?)\"\]", line).group(1)
                 if key in ("Date", "Round", "Opening"): continue    #skip irrelevant data (adjust if you prefer) 
+                if key not in games_columns + ["UTCDate", "UTCTime"]: continue   #if some unforseen data type not in table, skip it
                 if key in ("White", "Black"):
-                    (val, id_dict) = assign_user_ID(val, id_dict)   #converts username to user ID and updates id_dict
+                    (val, id_dict, new_id_dict) = assign_user_ID(val, id_dict, new_id_dict)   #converts username to user ID and updates id_dict
                 key, val = format_data(key, val)
                 game[key] = val
             except AttributeError:
@@ -236,7 +255,9 @@ if __name__ == "__main__":
                 game = OrderedDict()   #reset game dict variable for the next set of game data
                 if len(batch) >= BATCH_SIZE:
                     copy_data(conn, batch, "games")
+                    dump_dict(new_id_dict, conn)
                     batch = []
+                    new_id_dict = {}
     except (Exception, KeyboardInterrupt) as e:
         #on consumer shutdown, write remaining games data and id_dict values to database
         print(f"{e} exception raised, writing id_dict to database")

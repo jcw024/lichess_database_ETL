@@ -2,12 +2,10 @@ from multiprocessing.pool import ThreadPool
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from retry import retry
-import requests
 import shutil
 import glob
-import concurrent.futures
-import threading
 import time
+import os
 
 @retry(HTTPError, tries=-1, delay=60)
 def urlopen_retry(url):
@@ -20,21 +18,18 @@ def download_file(url, years_to_download=None, chunk_size=16*1024):
     if years_to_download and year not in years_to_download:
         return (url, False)
     if filename not in downloaded: 
-        if int(filename.split("-")[-1][:2]) % 2 == 0:   #download even months only (save disk space)
-            print(f"downloading {filename}...")
-            response = urlopen_retry(url)
-            with open(filename, 'wb') as local_f:
-                while True:
-                    chunk = response.read(chunk_size)
-                    if not chunk:
-                        break
-                    local_f.write(chunk)
-            return (url, True)
+        #if int(filename.split("-")[-1][:2]) % 2 == 0:   #download even months only (save disk space)
+        print(f"downloading {filename}...")
+        response = urlopen_retry(url)
+        with open('../data/' + filename, 'wb') as local_f:
+            while True:
+                chunk = response.read(chunk_size)
+                if not chunk:
+                    break
+                local_f.write(chunk)
+        return (url, True)
     else:
         return (url, False)
-
-def do_thing():
-    time.sleep(5)
 
 if __name__ == "__main__":
     urls = []
