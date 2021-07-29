@@ -29,6 +29,7 @@ def start_producer(url):
         producer.send('ChessGamesTopic', line)
 
 if __name__ == "__main__":
+    #execute producer.py to test on small dataset
     producer = KafkaProducer(bootstrap_servers='localhost:9092', linger_ms=1000*10000, batch_size=16384*50)
     lines = read_lines('../data/lichess_db_standard_rated_2013-01.pgn.bak.bz2')
     #for bzip_file in BZ2_DATA:
