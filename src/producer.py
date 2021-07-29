@@ -1,20 +1,13 @@
 from kafka import KafkaProducer
-from bz2 import BZ2File as bzopen
 from collections import defaultdict
 from tqdm import tqdm
+from data_process_util import read_lines
 import time
 import os
 import glob
 
 SRC_PATH = os.getcwd()  #assumes cwd is lichess_games/src
 BZ2_DATA = glob.glob(SRC_PATH+"/../data/lichess*")
-
-def read_lines(bzip_file):
-    """takes a bzip file path and returns a generator that yields each line in the file"""
-    with bzopen(bzip_file,"r") as bzfin:
-        game_data = []
-        for i, line in enumerate(bzfin):
-            yield line
 
 def start_producer(url):
     """assumes a lichess bzip file specified by the url has been downloaded in ../data and creates a kafka producer

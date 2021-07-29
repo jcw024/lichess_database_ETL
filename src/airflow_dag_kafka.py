@@ -43,7 +43,7 @@ default_args = {
         }
 
 with DAG(
-    'lichess_ETL_pipeline',
+    'lichess_ETL_pipeline_kafka',
     default_args=default_args,
     description='download game and send to kafka to write to db',
     schedule_interval=timedelta(seconds=1),

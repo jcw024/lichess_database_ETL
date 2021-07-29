@@ -1,6 +1,14 @@
 from datetime import datetime
 from collections import OrderedDict
+from bz2 import BZ2File as bzopen
 import re
+
+def read_lines(bzip_file):
+    """takes a bzip file path and returns a generator that yields each line in the file"""
+    with bzopen(bzip_file,"r") as bzfin:
+        game_data = []
+        for i, line in enumerate(bzfin):
+            yield line
 
 def assign_user_ID(username, id_dict, new_id_dict):
     """takes a username and gets the ID or assigns a new one if not already in id_dict
