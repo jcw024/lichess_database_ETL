@@ -59,21 +59,22 @@ with DAG(
             url_list = reversed(url_list)   #read the links from oldest to newest
 
     for i, url in enumerate(url_list):
+        month = url.split("_")[-1].split(".")[0]
         download_task = PythonOperator(
                 python_callable=download_file,
-                task_id="downloader_" + str(i),
+                task_id="downloader_" + month,
                 op_args=(url,),
                 op_kwargs={'years_to_download': [2013,2014,2015,2016,2017,2018]}
                 )
 
         process_task =  PythonOperator(
                 python_callable=process_file,
-                task_id="processer_" + str(i),
+                task_id="processer_" + month,
                 op_args=(url,)
                 )
         delete_file_task = PythonOperator(
                 python_callable=delete_file,
-                task_id="deletion_" + str(i),
+                task_id="deletion_" + month,
                 op_args=(url,)
                 )
 
