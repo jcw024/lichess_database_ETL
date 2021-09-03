@@ -1,0 +1,84 @@
+What date ranges are included in the data?
+2012-12-31 23:01:03
+2018-09-30 21:53:02
+a little over 5.5 years of data between 2013 and 2018
+
+SQL:
+SELECT min(date_time), max(date_time) FROM games; 
+
+=============
+
+How many games are contained in this dataset?
+452630700
+~450 Million
+
+SQL:
+select count(*) from games;
+
+==============
+
+How many players are contained in this dataset?
+2296327
+~2.3 Million
+
+SQL:
+select count(*) from user_ids;
+
+==============
+
+How many games are played for each time control?
+bullet: 139632730           ~140 Million, (31%)
+blitz: 210314205            ~210 Million, (47%)
+classical: 66543178         ~67 Million, (15%)
+correspondence: 1333618     ~1 Million, (0.2%)
+rapid: 34806969             ~35 Million (8%)
+
+SQL:
+SELECT event, termination, count(*) FROM games group by event, termination;
+
+==============
+
+How many games were closed for fair play violation?
+25251
+~25 Thousand (0.01%)
+
+How many games were abandoned?
+770328
+~770 Thousand (0.17%)
+
+How many games were lost due to time?
+149958742
+~150 Million (33%)
+
+How many games finished normally?
+62791173
+~301 Million (67%)
+
+SQL:
+SELECT event, termination, count(*) FROM games group by event, termination;
+
+==============
+
+How many games were played where white had a provisional rating (rating gain/loss of over 30 points)?
+13820422
+~13 Million
+
+SQL:
+SELECT count(*) FROM GAMES
+WHERE abs(whiteratingdiff) > 30;
+
+==============
+
+How many games were played where black and/or white had a provisional rating (rating gain/loss of over 30 points)?
+26778555
+~27 Million, about 6% of all games played
+--> newer players are paired together
+
+SQL:
+SELECT count(*) FROM GAMES
+WHERE abs(whiteratingdiff) > 30
+OR abs(blackratingdiff) > 30;
+
+==============
+
+

@@ -34,16 +34,35 @@ if __name__ == "__main__":
 
     queries = []
     filenames = []
-    queries.append(
+    q0 = "EXPLAIN SELECT * FROM Games;"
+    q1 = """
+    (SELECT * FROM GAMES g JOIN user_ids u ON g.white = u.id
+    WHERE g.whiteratingdiff < 30
+    limit 100)
+    UNION ALL
+    (SELECT * FROM GAMES g JOIN user_ids u ON g.black = u.id
+    WHERE g.blackratingdiff < 30
+    limit 100);
     """
-    SELECT * FROM GAMES limit 1000;
+    q2 = """
+    SELECT EXTRACT(DOW FROM date_time) as Day, 
+    EXTRACT(HOUR FROM date_time) as Hour, 
+    EXTRACT(MINUTE FROM date_time) as Minute,
+    COUNT(date_time) as number_of_games
+    FROM games 
+    GROUP BY 
+    EXTRACT(DOW FROM date_time), 
+    EXTRACT(HOUR FROM date_time), 
+    EXTRACT(MINUTE FROM date_time)
+    ORDER BY Day, Hour, Minute;
     """
-    )
-    queries.append(
+    q3 = """
+    SELECT event, white, black, whiteratingdiff, blackratingdiff, whiteelo, blackelo, date_time, site
+    FROM GAMES WHERE white = 101000 OR black = 101000
+    ORDER BY event, date_time
     """
-    SELECT * FROM user_ids limit 10;
-    """
-    )
+
+    queries = [q2]
     select_query(queries, conn)
 
     #conn.commit()

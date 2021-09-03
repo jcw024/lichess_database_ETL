@@ -17,3 +17,7 @@ What does elo progression look like starting from 1000? --> scatter plot (elo, d
 What percentage of players who have reached elo X reach elo Y? --> 3D surface (X, Y, %)
 What percentage of players have been banned for cheating or other violation of TOS? --> pie chart
 What is the median and average length of time players are active? --> dropoff chart (% active vs. duration)
+How many games does the median, average, maximum user play? numbers + dropoff chart
+What are the most popular times of the day to play chess? --> line chart vs. time (minutes)
+What are the most popular day of week to play chess? --> barchart
+Who has played the most games in the dataset?
