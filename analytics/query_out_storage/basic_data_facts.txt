@@ -26,6 +26,30 @@ select count(*) from user_ids;
 
 ==============
 
+What are the all time highest and lowest ratings in the dataset?
+Lowest: 630 by JAckermaan
+Highest (bot): 3233 by LeelaChessOfficial
+Highest (non-bot): 3196 by penguingim1 and Kuuhaku_1
+Highest (non-bot blitz): 3031 by penguingim1, Ultimate_SHSL_Gamer, BehaardTheBonobo, galbijjim, Kuuhaku_1, BeepBeepImAJeep, keithster
+
+SQL:
+select * from games join user_ids u1 on u1.id = games.black 
+join user_ids u2 on u2.id = games.white 
+where blackelo = (select max(blackelo) from games) 
+or whiteelo=(SELECT MAX(whiteelo) from games);
+
+select * from games join user_ids u1 on u1.id = games.black 
+join user_ids u2 on u2.id = games.white 
+where blackelo = (select max(blackelo) from games where blacktitle <> 'BOT') 
+or whiteelo=(SELECT MAX(whiteelo) from games where whitetitle <> 'BOT');
+
+select * from games join user_ids u1 on u1.id = games.black 
+join user_ids u2 on u2.id = games.white 
+where blackelo = (select max(blackelo) from games where blacktitle <> 'BOT' and event = 'B') 
+or whiteelo=(SELECT MAX(whiteelo) from games where whitetitle <> 'BOT' and event = 'B');
+
+==============
+
 How many games are played for each time control?
 bullet: 139632730           ~140 Million, (31%)
 blitz: 210314205            ~210 Million, (47%)
@@ -81,4 +105,110 @@ OR abs(blackratingdiff) > 30;
 
 ==============
 
+How many games does each player play before quitting lichess?
+Median games played: 27
+Average games played: 482
+Maximum games played: 250516
+
+SQL:
+SELECT sub1.white, sub1.white_game_count + sub2.black_game_count as total_games
+FROM
+(SELECT White, COUNT(*) as white_game_count
+FROM games g1
+GROUP BY White) as sub1
+JOIN
+(SELECT Black, COUNT(*) as black_game_count
+FROM games g2
+GROUP BY Black) as sub2
+ON sub1.white = sub2.black
+ORDER BY total_games DESC;
+
+==============
+
+Who played the largest number of games?
+The most active player in this dataset played 250516 games (mostly bullet games), about 0.05% of all games in this database.
+There are only 10 players who have played over 100,000 games (ordered from most to least):
+german11
+ribarisah
+decidement
+ASONINYA
+bernes
+Grga1
+leko29
+rezo2015
+jiacomo
+PILOTVE
+
+SQL:
+SELECT sub1.white, sub1.white_game_count + sub2.black_game_count as total_games
+FROM
+(SELECT White, COUNT(*) as white_game_count
+FROM games g1
+GROUP BY White) as sub1
+JOIN
+(SELECT Black, COUNT(*) as black_game_count
+FROM games g2
+GROUP BY Black) as sub2
+ON sub1.white = sub2.black
+ORDER BY total_games DESC;
+
+==============
+
+Who played the most games for each time control?
+german11, 211781 bullet games
+jlomb, 58966 blitz games
+tutubelezza, 22674 rapid games  #note: Lichess categorized rapid as either blitz/classical initially, so data isn't entirely accurate here
+Snowden, 45814 classical games
+lapos, 6870 correspondence games
+
+SQL:    #note: I searched the top players manually from the output, then looked up the user_ids afterwards, but you could
+        #      have the query handle that with a join with the user_ids table and order by the event first
+SELECT sub1.white, sub1.event, sub1.white_game_count + sub2.black_game_count as total_games
+FROM
+(SELECT White, event, COUNT(*) as white_game_count
+FROM games g1
+GROUP BY White, event) as sub1
+JOIN
+(SELECT Black, event, COUNT(*) as black_game_count
+FROM games g2
+GROUP BY Black, event) as sub2
+ON sub1.white = sub2.black
+AND sub1.event = sub2.event
+ORDER BY total_games DESC;
+
+==============
+
+How many games are played in each elo bracket?
+
+600 <= elo < 800: 113134        (0.03%)
+800 <= elo < 1000: 9289504      (2.1%)
+1000 <= elo < 1200: 33022554    (7.3%)
+1200 <= elo < 1400: 76131114    (16.8%)
+1400 <= elo < 1600: 118401628   (26.2%)
+1600 <= elo < 1800: 116825676   (26.0%)
+1800 <= elo < 2000: 69078142    (15.3%)
+2000 <= elo < 2200: 23779201    (5.3%)
+2200 <= elo < 2400: 5243316     (1.2%)
+2400 <= elo < 2600: 693187      (0.15%)
+2600 <= elo < 2800: 51112       (0.01%)
+2800 <= elo: 2132               (0.0005%)
+
+SQL:
+SELECT
+CASE WHEN LEAST(Whiteelo, Blackelo) < 600 THEN 'elo < 600'
+WHEN LEAST(Whiteelo, Blackelo) >= 600 AND LEAST(Whiteelo, Blackelo) < 800 THEN '600 <= elo < 800'
+WHEN LEAST(Whiteelo, Blackelo) >= 800 AND LEAST(Whiteelo, Blackelo) < 1000 Then '800 <= elo < 1000'
+WHEN LEAST(Whiteelo, Blackelo) >= 1000 AND LEAST(Whiteelo, Blackelo) < 1200 Then '1000 <= elo < 1200'
+WHEN LEAST(Whiteelo, Blackelo) >= 1200 AND LEAST(Whiteelo, Blackelo) < 1400 Then '1200 <= elo < 1400'
+WHEN LEAST(Whiteelo, Blackelo) >= 1400 AND LEAST(Whiteelo, Blackelo) < 1600 Then '1400 <= elo < 1600'
+WHEN LEAST(Whiteelo, Blackelo) >= 1600 AND LEAST(Whiteelo, Blackelo) < 1800 Then '1600 <= elo < 1800'
+WHEN LEAST(Whiteelo, Blackelo) >= 1800 AND LEAST(Whiteelo, Blackelo) < 2000 Then '1800 <= elo < 2000'
+WHEN LEAST(Whiteelo, Blackelo) >= 2000 AND LEAST(Whiteelo, Blackelo) < 2200 Then '2000 <= elo < 2200'
+WHEN LEAST(Whiteelo, Blackelo) >= 2200 AND LEAST(Whiteelo, Blackelo) < 2400 Then '2200 <= elo < 2400'
+WHEN LEAST(Whiteelo, Blackelo) >= 2400 AND LEAST(Whiteelo, Blackelo) < 2600 Then '2400 <= elo < 2600'
+WHEN LEAST(Whiteelo, Blackelo) >= 2600 AND LEAST(Whiteelo, Blackelo) < 2800 Then '2600 <= elo < 2800'
+WHEN LEAST(Whiteelo, Blackelo) >= 2800 Then '2800 <= elo' END as elo_bracket,
+COUNT(*) as total_games
+FROM games
+GROUP by 1;
 
