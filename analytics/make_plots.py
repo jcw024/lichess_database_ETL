@@ -143,7 +143,7 @@ def lineplot_elo_vs_days(filename):
     fig.savefig(filename, dpi=300)
 
 def lineplot_elo_vs_months(MA_window=1, rating_diff_cutoff=-1000):
-    filename = f"plots/blitz_elo_over_time_{rating_diff_cutoff}_elo_cutoff_{MA_window}_MAWindow.png"
+    filename = f"plots/blitz_elo_over_time/blitz_elo_over_time_{rating_diff_cutoff}_elo_cutoff_{MA_window}_MAWindow.png"
     print("reading csv...")
     df = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
     print("converting days since start...")
@@ -199,12 +199,13 @@ def lineplot_elo_vs_months(MA_window=1, rating_diff_cutoff=-1000):
 
 if __name__ == "__main__":
     Path("./plots/popular_play_times").mkdir(parents=True, exist_ok=True)
+    Path("./plots/blitz_elo_over_time").mkdir(parents=True, exist_ok=True)
     #barplot_games_by_time_of_day("./plots/popular_play_times/games_by_time_of_day.png")
     #lineplot_games_by_time_and_day("./plots/popular_play_times/games_by_time_and_day.png")
     #barplot_games_by_day("./plots/popular_play_times/games_by_day.png")
     #pieplot_games_per_elo_band("./plots/games_per_elo_bracket.png")
     #histogram_player_churn("./plots/games_per_player.png")
     #barplot_pct_analyzed_per_elo_bracket("./plots/pct_analyzed_per_elo_bracket.png")
-    #lineplot_elo_vs_days("./plots/blitz_elo_over_time.png")
+    #lineplot_elo_vs_days("./plots/blitz_elo_over_time/blitz_elo_over_time.png")
     #lineplot_elo_vs_months()
     lineplot_elo_vs_months(rating_diff_cutoff=100)
