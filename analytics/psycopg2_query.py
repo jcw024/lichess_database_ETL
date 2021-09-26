@@ -64,6 +64,7 @@ if __name__ == "__main__":
     FROM GAMES WHERE white = 101000 OR black = 101000
     ORDER BY event, date_time
     """
+    #total games per player
     q4 = """
     SELECT sub1.white, sub1.white_game_count + sub2.black_game_count as total_games
     FROM
@@ -77,6 +78,7 @@ if __name__ == "__main__":
     ON sub1.white = sub2.black
     ORDER BY total_games DESC;
     """
+    #total games per elo bracket
     q5 = """
     SELECT
     CASE WHEN LEAST(Whiteelo, Blackelo) < 600 THEN 'elo < 600'
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     FROM games
     GROUP BY event;
     """
-
+    #number of games analyzed per elo bracket
     q8 = """
     EXPLAIN
     SELECT
@@ -160,6 +162,7 @@ if __name__ == "__main__":
     WHERE ABS(blackratingdiff) < 30) as s
     GROUP BY player, event;
     """
+    #games per player by days since player's first stable rating
     q11 = """
     SELECT g.Black as player, MIN(g.blackelo), g.date_time::date, 
             AGE(g.date_time::date, Min(sub.start_date)) as days_since_start

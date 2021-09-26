@@ -4,6 +4,7 @@ import datetime as datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+import math
 from pathlib import Path
 
 
@@ -115,18 +116,19 @@ def barplot_pct_analyzed_per_elo_bracket(filename):
     fig = bar.get_figure()
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
-def lineplot_elo_over_time(filename):
+def lineplot_elo_vs_days(filename):
     print("reading csv...")
     df = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
     print("converting days since start...")
     df["days_since_start"] = df["days_since_start"].apply(lambda x: int(re.search(r'\d+', x).group(0)))
     df_starting_elo = df[df["days_since_start"] == 0]
+    #assign rating bands to players
     for lower_elo_lim in range(800,2201,200):
         upper_elo_lim = lower_elo_lim + 199
         df_band = df_starting_elo[(df_starting_elo["min"] >= lower_elo_lim) & (df_starting_elo["min"] <= upper_elo_lim)]
         df.loc[df["player"].isin(df_band["player"]), "band"] = f"{lower_elo_lim} - {upper_elo_lim}"
     df = df.dropna()    #drop extreme elo values (600-800 and 2400+) due to low sample size
-    #print("plotting...")
+    print("plotting...")
     ax = sns.lineplot(x="days_since_start", y="min", hue="band", data=df)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0,box.width*.8, box.height])
@@ -140,6 +142,61 @@ def lineplot_elo_over_time(filename):
     print("saving figure...")
     fig.savefig(filename, dpi=300)
 
+def lineplot_elo_vs_months(MA_window=1, rating_diff_cutoff=-1000):
+    filename = f"plots/blitz_elo_over_time_{rating_diff_cutoff}_elo_cutoff_{MA_window}_MAWindow.png"
+    print("reading csv...")
+    df = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
+    print("converting days since start...")
+    df["days_since_start"] = df["days_since_start"].apply(lambda x: int(re.search(r'\d+', x).group(0)))
+    df["months_since_start"] = df["days_since_start"].apply(lambda x: math.floor(x/30.5))
+    df = df.groupby(["player","months_since_start"]).mean().reset_index()
+    df_starting_elo = df[df["months_since_start"] == 0]
+    #assign rating bands to players
+    for lower_elo_lim in range(800,2201,200):
+        upper_elo_lim = lower_elo_lim + 200
+        df_band = df_starting_elo[(df_starting_elo["min"] >= lower_elo_lim) & (df_starting_elo["min"] < upper_elo_lim)]
+        df.loc[df["player"].isin(df_band["player"]), "band"] = f"{lower_elo_lim} - {upper_elo_lim-1}"
+    print("calculating starting and ending elo diff...")
+    #calculate moving average rating for each player
+    df_tmp = df.groupby("player").rolling(window=MA_window).mean()
+    #fix df_tmp index, then assign to new column in df. NOTE: the "player" column is renamed to "player_orig" in df_tmp
+    df["MA"] = df_tmp.rename(columns={"player":"player_orig"}).reset_index(level="player")["min"]  
+    df = df.dropna()    #drop extreme elo values (600-800 and 2400+) due to low sample size; drop players with < MA_window months played
+    #get diff between start and end ratings per player
+    df_tmp = df.groupby(["player"]).min()
+    df_start_elo = pd.merge(df[["player","min","MA", "band","months_since_start"]], 
+            df_tmp["months_since_start"], on=["player","months_since_start"])
+    df_tmp = df.groupby(["player"]).max()
+    df_end_elo = pd.merge(df[["player","min","months_since_start","MA", "band"]], 
+            df_tmp["months_since_start"], on=["player","months_since_start"])
+    df_end_elo["diff"] = df_end_elo["MA"] - df_starting_elo["min"]
+    #store statistics on diff data
+    print("saving data in query_out_storage...")
+    df_end_elo.to_csv("query_out_storage/elo_diff_per_player.csv")
+    df_end_elo[["band","min","diff"]].groupby("band").median().to_csv("query_out_storage/elo_band_medians.csv")
+    df_end_elo[["band","min","diff"]].groupby("band").mean().to_csv("query_out_storage/elo_band_means.csv")
+    df_end_elo[["band","min","diff"]].groupby("band").min().to_csv("query_out_storage/elo_band_mins.csv")
+    df_end_elo[["band","min","diff"]].groupby("band").max().to_csv("query_out_storage/elo_band_maxs.csv")
+    df = df[df["player"].isin(df_end_elo["player"].loc[df_end_elo["diff"] > rating_diff_cutoff])]
+    print(f"{df.shape[0]} rows remain after using a start-end elo diff cutoff of {rating_diff_cutoff}")
+    n_players = df['player'].nunique() 
+    print(f"{n_players} blitz players have gained {rating_diff_cutoff} rating points since their first stable rating")
+    print("plotting...")
+    ax = sns.lineplot(x="months_since_start", y="MA", hue="band", data=df, alpha=0.6)
+    plt.grid(b=True, axis='y', linestyle='--', color='black', alpha=0.3)
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0,box.width*.9, box.height])
+    handles, labels = ax.get_legend_handles_labels()
+    labels, handles = zip(*sorted(zip(labels, handles), key=lambda x: int(x[0][0:4])))  #sort by elo number instead of str
+    ax.legend(handles, labels, loc='center left', bbox_to_anchor=(1.05,.5), title="starting elo")
+    ax.set_xlabel("months since player's first stable rating")
+    ax.set_ylabel('stable elo rating')
+    ax.set_title(f"elo vs. time: {n_players} users who gained > {rating_diff_cutoff} elo")
+    fig = ax.get_figure()
+    print(f"saving figure to {filename}...")
+    fig.savefig(filename, dpi=300, bbox_inches='tight')
+    return
+
 if __name__ == "__main__":
     Path("./plots/popular_play_times").mkdir(parents=True, exist_ok=True)
     #barplot_games_by_time_of_day("./plots/popular_play_times/games_by_time_of_day.png")
@@ -148,4 +205,6 @@ if __name__ == "__main__":
     #pieplot_games_per_elo_band("./plots/games_per_elo_bracket.png")
     #histogram_player_churn("./plots/games_per_player.png")
     #barplot_pct_analyzed_per_elo_bracket("./plots/pct_analyzed_per_elo_bracket.png")
-    #lineplot_elo_over_time("./plots/blitz_games_per_player_over_time.png")
+    #lineplot_elo_vs_days("./plots/blitz_elo_over_time.png")
+    #lineplot_elo_vs_months()
+    lineplot_elo_vs_months(rating_diff_cutoff=100)
