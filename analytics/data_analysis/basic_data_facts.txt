@@ -180,6 +180,8 @@ ORDER BY total_games DESC;
 
 How many games are played in each elo bracket?
 
+see plots/games_per_elo_bracket.png for a pie chart
+
 600 <= elo < 800: 113134        (0.03%)
 800 <= elo < 1000: 9289504      (2.1%)
 1000 <= elo < 1200: 33022554    (7.3%)
