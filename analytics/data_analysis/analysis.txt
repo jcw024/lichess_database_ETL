@@ -1,5 +1,7 @@
 How long does it take to increase elo by 100?
 
+[blitz_elo_over_time_-1000_elo_cutoff.png]
+
 It depends a lot on what your current elo is. As one might expect, lower elo ratings have the greatest opportunity to improve quickly, while higher elo ratings will take much longer to see improvement. 
 
 I analyzed the data from the perspective of a player's monthly average which should be a better estimate of a player's playing strength than looking at the game-by-game elo fluctuation. I'm not particularly interested in cases of players who managed to jump 100 points in one afternoon blitz binge session. I believe those instances can be attributed to random chance rather than those players suddenly having a "eureka" moment that boosted their playing strength by 100 elo points overnight.
@@ -8,11 +10,19 @@ From the blitz_elo_over_time plots, most players in the 800-1000 rating range (a
 
 =====================================
 
-What is the average time it takes to reach elo band X for the top 10% of fastest improving players?
+What is the improvement rate for players who have increased their elo by at least 100 points?
+
+[blitz_elo_over_time_100_elo_cutoff.png]
+
+There's a strange jump in rating in the first month for players in this category. It's possible this could be due to players starting out on lichess as underrated and quickly catching up in the first month. I'm going to ignore the first month when calculating the improvement rate.
+
+From the chart, players in the 800-1000 range are able to improve their elo by 200 points in just 11 months. Players in the 1600-2000 range are able to improve their elo by 100 points in about 3-4 years, which isn't much different from the average of all players. One explanation for this is that most players at this rating range are already considered "serious" players and most of them should be looking to invest effort into improving. Setting a cutoff in the data for 100 elo points of improvement is not as strong a filter in this case.
 
 =====================================
 
 What is the typical change between players' starting and ending elo ratings?
+
+[elo_diff_per_player.csv]
 
 most negative change (banned): -1045.96. This account (laurent17320) was closed for violating terms of service (probably for intentionally losing games). They went from 1950 down to 895 elo.
 most negative change (not banned): -1012.33. This account (Gyarados) went from 2145 elo down to 1133. I think this account used to be played by a strong player around the year 2016, then was handed off to a weaker player in 2017 who proceeded to drop the rating down to where it is now.
