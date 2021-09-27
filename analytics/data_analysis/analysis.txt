@@ -8,6 +8,10 @@ I analyzed the data from the perspective of a player's monthly average which sho
 
 From the blitz_elo_over_time plots, most players in the 800-1000 rating range (about 6% of players) will see their elo jump up 100 points in just a few months of activity. Most players in the 1600-2000 range (27% of players) will take 4 years or more to move up just 100 elo points. 
 
+[elo_diff_by_total_games_played.png]
+
+It appears that elo increase is only weakly correlated with the number of games played. There is a very faint upward trend in the dark blue region in the center of the blob in the 0-100 elo change range. This suggests improvement doesn't come from solely from experience with games played, but needs to be supplemented with additional study outside of playing games.
+
 =====================================
 
 What is the improvement rate for players who have increased their elo by at least 100 points?
