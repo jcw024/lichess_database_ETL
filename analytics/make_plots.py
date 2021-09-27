@@ -85,6 +85,19 @@ def pieplot_games_per_elo_band(filename):
            fontsize=8)
     plt.savefig(filename, dpi=300, bbox_inches='tight')
 
+def pieplot_players_per_elo_band(filename):
+    df = pd.read_csv("./query_out_storage/elo_diff_per_player.csv")
+    df = df.groupby("band").count()["player"]
+    df = df.reset_index()
+    df = pd.concat([df.iloc[[7],:], df.drop(7, axis=0)], axis=0)
+    pct = 100*df.player/df.player.sum()
+    labels = ["{0}: {1:1.2f} %".format(i,j) for i,j in zip(df.band, pct)]
+    pie, ax = plt.subplots(figsize=[10,6])
+    patches, text = plt.pie(x=df.player, wedgeprops={'linewidth':1, 'linestyle':'-', 'edgecolor':'k'}, pctdistance=1, startangle=90)
+    plt.legend(patches, labels, loc='center right', bbox_to_anchor=(1.4, .5),fontsize=8)
+    ax.set_title("Total Number of Players per Elo Bracket")
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+
 def histogram_player_churn(filename):
     df = pd.read_csv("query_out_storage/total_games_per_player.csv")
     h, ax = plt.subplots(figsize=[10,6])
@@ -144,8 +157,8 @@ def lineplot_elo_vs_days(filename):
     print("saving figure...")
     fig.savefig(filename, dpi=300)
 
-def lineplot_elo_vs_months(MA_window=1, rating_diff_cutoff=-1000):
-    filename = f"plots/blitz_elo_over_time/blitz_elo_over_time_{rating_diff_cutoff}_elo_cutoff_{MA_window}_MAWindow.png"
+def lineplot_elo_vs_months(rating_diff_cutoff=-1000):
+    filename = f"plots/blitz_elo_over_time/blitz_elo_over_time_{rating_diff_cutoff}_elo_cutoff.png"
     print("reading csv...")
     df = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
     print("converting days since start...")
@@ -159,19 +172,18 @@ def lineplot_elo_vs_months(MA_window=1, rating_diff_cutoff=-1000):
         df_band = df_starting_elo[(df_starting_elo["min"] >= lower_elo_lim) & (df_starting_elo["min"] < upper_elo_lim)]
         df.loc[df["player"].isin(df_band["player"]), "band"] = f"{lower_elo_lim} - {upper_elo_lim-1}"
     print("calculating starting and ending elo diff...")
-    #calculate moving average rating for each player
-    df_tmp = df.groupby("player").rolling(window=MA_window).mean()
-    #fix df_tmp index, then assign to new column in df. NOTE: the "player" column is renamed to "player_orig" in df_tmp
-    df["MA"] = df_tmp.rename(columns={"player":"player_orig"}).reset_index(level="player")["min"]  
-    df = df.dropna()    #drop extreme elo values (600-800 and 2400+) due to low sample size; drop players with < MA_window months played
+    df = df.dropna()    #drop extreme elo values (600-800 and 2400+) due to low sample size
     #get diff between start and end ratings per player
     df_tmp = df.groupby(["player"]).min()
-    df_start_elo = pd.merge(df[["player","min","MA", "band","months_since_start"]], 
+    df_start_elo = pd.merge(df[["player","min", "band","months_since_start"]], 
             df_tmp["months_since_start"], on=["player","months_since_start"])
     df_tmp = df.groupby(["player"]).max()
-    df_end_elo = pd.merge(df[["player","min","months_since_start","MA", "band"]], 
+    df_end_elo = pd.merge(df[["player","min","months_since_start", "band"]], 
             df_tmp["months_since_start"], on=["player","months_since_start"])
-    df_end_elo["diff"] = df_end_elo["MA"] - df_starting_elo["min"]
+    df_end_elo = df_end_elo.set_index("player")
+    df_starting_elo = df_starting_elo.set_index("player")
+    df_end_elo["diff"] = df_end_elo["min"] - df_starting_elo["min"]
+    df_end_elo = df_end_elo.reset_index()
     #store statistics on diff data
     print("saving data in query_out_storage...")
     df_end_elo.to_csv("query_out_storage/elo_diff_per_player.csv")
@@ -184,10 +196,11 @@ def lineplot_elo_vs_months(MA_window=1, rating_diff_cutoff=-1000):
     n_players = df['player'].nunique() 
     print(f"{n_players} blitz players have gained {rating_diff_cutoff} rating points since their first stable rating")
     print("plotting...")
-    ax = sns.lineplot(x="months_since_start", y="MA", hue="band", data=df, alpha=0.6)
+    ax = sns.lineplot(x="months_since_start", y="min", hue="band", data=df, alpha=0.6)
     plt.grid(b=True, axis='y', linestyle='--', color='black', alpha=0.3)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0,box.width*.9, box.height])
+    ax.set_yticks(np.arange(1000,2600,200))
     handles, labels = ax.get_legend_handles_labels()
     labels, handles = zip(*sorted(zip(labels, handles), key=lambda x: int(x[0][0:4])))  #sort by elo number instead of str
     ax.legend(handles, labels, loc='center left', bbox_to_anchor=(1.05,.5), title="starting elo")
@@ -206,8 +219,9 @@ if __name__ == "__main__":
     #lineplot_games_by_time_and_day("./plots/popular_play_times/games_by_time_and_day.png")
     #barplot_games_by_day("./plots/popular_play_times/games_by_day.png")
     #pieplot_games_per_elo_band("./plots/games_per_elo_bracket.png")
-    histogram_player_churn("./plots/games_per_player.png")
+    #histogram_player_churn("./plots/games_per_player.png")
     #barplot_pct_analyzed_per_elo_bracket("./plots/pct_analyzed_per_elo_bracket.png")
     #lineplot_elo_vs_days("./plots/blitz_elo_over_time/blitz_elo_over_time.png")
     #lineplot_elo_vs_months()
-    #lineplot_elo_vs_months(rating_diff_cutoff=100)
+    lineplot_elo_vs_months(rating_diff_cutoff=100)
+    #pieplot_players_per_elo_band("plots/players_per_elo_bracket.png")

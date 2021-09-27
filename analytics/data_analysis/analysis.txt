@@ -1,0 +1,22 @@
+How long does it take to increase elo by 100?
+
+It depends a lot on what your current elo is. As one might expect, lower elo ratings have the greatest opportunity to improve quickly, while higher elo ratings will take much longer to see improvement. 
+
+I analyzed the data from the perspective of a player's monthly average which should be a better estimate of a player's playing strength than looking at the game-by-game elo fluctuation. I'm not particularly interested in cases of players who managed to jump 100 points in one afternoon blitz binge session. I believe those instances can be attributed to random chance rather than those players suddenly having a "eureka" moment that boosted their playing strength by 100 elo points overnight.
+
+From the blitz_elo_over_time plots, most players in the 800-1000 rating range (about 6% of players) will see their elo jump up 100 points in just a few months of activity. Most players in the 1600-2000 range (27% of players) will take 4 years or more to move up just 100 elo points. 
+
+=====================================
+
+What is the average time it takes to reach elo band X for the top 10% of fastest improving players?
+
+=====================================
+
+What is the typical change between players' starting and ending elo ratings?
+
+most negative change (banned): -1045.96. This account (laurent17320) was closed for violating terms of service (probably for intentionally losing games). They went from 1950 down to 895 elo.
+most negative change (not banned): -1012.33. This account (Gyarados) went from 2145 elo down to 1133. I think this account used to be played by a strong player around the year 2016, then was handed off to a weaker player in 2017 who proceeded to drop the rating down to where it is now.
+median change: 0. Most players don't play more than ~30 or so games before quitting lichess permanently, much less so staying active longer than 1 month. Hence why the most common rating change is 0.
+mean change: 22. As expected, players should tend to get stronger over time, but the average is probably brought down by the majority of casual, non-serious chess players on lichess.
+most positive change: 1404. This is held by the account PeshkaCh, as of this writing (Sep 2021) an 11 year old world chess champion from ukraine. Browsing some of the other top accounts, some of them are bots, many of them have been closed.
+Highest positive change/month: 897. I have explored accounts with the greatest elo change/month, however most of them are either bots with a very short activity timespan (ok_zabu) or accounts that have been closed/banned probably for cheating (as expected). I don't think these accounts are particularly interesting. For reference, the account with the most positive change had an average increase of 33.45 elo/month.
