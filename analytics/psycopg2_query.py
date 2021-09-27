@@ -37,6 +37,8 @@ if __name__ == "__main__":
     #baseline query ~30 minutes to run, 7.5M disk page fetches
     q0 = "EXPLAIN SELECT COUNT(*) FROM Games;"
 
+    q00 = "SELECT * FROM user_ids;"
+
     q1 = """
     (SELECT * FROM GAMES g JOIN user_ids u ON g.white = u.id
     WHERE g.whiteratingdiff < 30
@@ -178,8 +180,8 @@ if __name__ == "__main__":
     GROUP BY g.Black, g.date_time::date
     """
 
-    queries = [q11]
-    filenames = ["q11.csv"]
+    queries = [q00]
+    filenames = ["user_ids.csv"]
     select_query(queries, conn, filenames=filenames)
 
     #conn.commit()
