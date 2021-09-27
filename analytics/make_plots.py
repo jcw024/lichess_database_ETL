@@ -212,6 +212,26 @@ def lineplot_elo_vs_months(rating_diff_cutoff=-1000):
     fig.savefig(filename, dpi=300, bbox_inches='tight')
     return
 
+def hexbin_elo_vs_games_played(filename, y="diff"):
+    df_total_games = pd.read_csv("query_out_storage/total_games_per_player.csv")
+    df_elo_diff = pd.read_csv("query_out_storage/elo_diff_per_player.csv")
+    df_total_games = df_total_games.rename(columns={"white":"player"})
+    df = df_total_games.merge(df_elo_diff, on="player")
+    if y == "diff":
+        g = sns.jointplot(data=df, x="total_games", y="diff", kind="hex", ylim=[-1000,1000], xscale='log', bins='log')
+    else:
+        g = sns.jointplot(data=df, x="total_games", y="min", kind="hex", xscale='log', bins='log')
+    ax = g.ax_joint
+    cbar = plt.colorbar(location='right')
+    cbar.set_label('Number of players')
+    ax.set_xlabel("Number of Games Played")
+    if y == "diff":
+        ax.set_ylabel('Net Elo Change')
+    else:
+        ax.set_ylabel('Elo Rating')
+    fig = ax.get_figure()
+    fig.savefig(filename, dpi=300, bbox_inches='tight')
+
 if __name__ == "__main__":
     Path("./plots/popular_play_times").mkdir(parents=True, exist_ok=True)
     Path("./plots/blitz_elo_over_time").mkdir(parents=True, exist_ok=True)
@@ -223,5 +243,7 @@ if __name__ == "__main__":
     #barplot_pct_analyzed_per_elo_bracket("./plots/pct_analyzed_per_elo_bracket.png")
     #lineplot_elo_vs_days("./plots/blitz_elo_over_time/blitz_elo_over_time.png")
     #lineplot_elo_vs_months()
-    lineplot_elo_vs_months(rating_diff_cutoff=100)
+    #lineplot_elo_vs_months(rating_diff_cutoff=100)
     #pieplot_players_per_elo_band("plots/players_per_elo_bracket.png")
+    #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played.png")
+    hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
