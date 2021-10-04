@@ -212,21 +212,43 @@ def lineplot_elo_vs_months(rating_diff_cutoff=-1000):
     fig.savefig(filename, dpi=300, bbox_inches='tight')
     return
 
-def hexbin_elo_vs_games_played(filename, y="diff"):
+def hexbin_elo_vs_games_played(filename, y="diff", mode="net"):
     df_total_games = pd.read_csv("query_out_storage/total_games_per_player.csv")
     df_elo_diff = pd.read_csv("query_out_storage/elo_diff_per_player.csv")
     df_total_games = df_total_games.rename(columns={"white":"player"})
     df = df_total_games.merge(df_elo_diff, on="player")
+    if mode == "per_day":
+        print("reading total_blitz_games_per_player_over_time.csv")
+        df_time = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
+        print("converting to months_since_start")
+        df_time["months_since_start"] = df_time["days_since_start"].apply(lambda x: math.floor(int(re.search(r'\d+', x).group(0))/30.5))
+        print("grouping by player")
+        df_time = df_time.groupby(["player"]).max().reset_index()
+        df = df.merge(df_time, on="player")
+        df["total_games"] = df["total_games"]/df["months_since_start_y"]
+        df.replace([np.inf,-np.inf],np.nan,inplace=True)
     if y == "diff":
+        if mode == "per_day":
+            df["diff"] = df["diff"]/df["months_since_start_y"]
+            df.replace([np.inf,-np.inf],np.nan,inplace=True)
+            df = df.dropna()
         g = sns.jointplot(data=df, x="total_games", y="diff", kind="hex", ylim=[-1000,1000], xscale='log', bins='log')
     else:
-        g = sns.jointplot(data=df, x="total_games", y="min", kind="hex", xscale='log', bins='log')
+        df.replace([np.inf,-np.inf],np.nan,inplace=True)
+        df = df.dropna()
+        g = sns.jointplot(data=df, x="total_games", y="min_x", kind="hex", xscale='log', bins='log')
     ax = g.ax_joint
     cbar = plt.colorbar(location='right')
     cbar.set_label('Number of players')
-    ax.set_xlabel("Number of Games Played")
+    if mode == "per_day":
+        ax.set_xlabel("Number of Games Played per Month")
+    else:
+        ax.set_xlabel("Number of Games Played")
     if y == "diff":
-        ax.set_ylabel('Net Elo Change')
+        if mode == "per_day":
+            ax.set_ylabel('Average Elo Change per Month')
+        else:
+            ax.set_ylabel('Net Elo Change')
     else:
         ax.set_ylabel('Elo Rating')
     fig = ax.get_figure()
@@ -246,4 +268,7 @@ if __name__ == "__main__":
     #lineplot_elo_vs_months(rating_diff_cutoff=100)
     #pieplot_players_per_elo_band("plots/players_per_elo_bracket.png")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played.png")
-    hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
+    #hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
+    #hexbin_elo_vs_games_played("plots/elo_by_total_games_played_per_day_blitz.png", y="elo", mode="per_day")
+    hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_day_blitz.png", mode="per_day")
+
