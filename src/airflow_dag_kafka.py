@@ -49,7 +49,7 @@ with DAG(
     'lichess_ETL_pipeline_kafka',
     default_args=default_args,
     description='download game and send to kafka to write to db',
-    schedule_interval=timedelta(seconds=1),
+    schedule_interval=timedelta(minutes=5),
     start_date=days_ago(7),
     #end_date=datetime(2021,8,1),
     max_active_runs=1,
