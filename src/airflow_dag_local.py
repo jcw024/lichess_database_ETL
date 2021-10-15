@@ -39,7 +39,7 @@ default_args = {
         'email_on_failure': False,
         'email_on_retry': False,
         'retries': 10,
-        'retry_delay':timedelta(minutes=5),
+        'retry_delay':timedelta(seconds=30),
         'retry_exponential_backoff':True,
         #'max_retry_delay':timedelta(minutes=30),
         'execution_timeout':None
