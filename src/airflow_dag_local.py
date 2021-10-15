@@ -11,6 +11,9 @@ from airflow.utils.dates import days_ago
 import time
 import os
 
+DAG_PATH = os.path.realpath(__file__)
+DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
+
 """
 def download_game(url):
     with open('log.txt', 'a') as f:
@@ -24,7 +27,7 @@ def start_producer(url):
 """
 def delete_file(url):
     """takes file url and deletes file to save disk space. assumes data has been downloaded in ../data and sent by the producer"""
-    with open('log.txt', 'a') as f:
+    with open(DAG_PATH + 'log.txt', 'a') as f:
         f.write(f"{datetime.now()} deleting {url}...\n")
     filepath = os.getcwd() + "/../data/" + url.split("/")[-1]
     os.remove(filepath)
@@ -53,7 +56,7 @@ with DAG(
     catchup=False
     ) as dag2:
 
-    with open('download_links.txt','r') as f:
+    with open(DAG_PATH + 'download_links.txt','r') as f:
         for line in f:
             url_list = f.read().splitlines()
             url_list = reversed(url_list)   #read the links from oldest to newest
