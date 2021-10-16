@@ -29,7 +29,8 @@ def delete_file(url):
     """takes file url and deletes file to save disk space. assumes data has been downloaded in ../data and sent by the producer"""
     with open(DAG_PATH + 'log.txt', 'a') as f:
         f.write(f"{datetime.now()} deleting {url}...\n")
-    filepath = os.getcwd() + "/../data/" + url.split("/")[-1]
+    #filepath = os.getcwd() + "/../data/" + url.split("/")[-1]
+    filepath = DAG_PATH + url.split("/")[-1]
     os.remove(filepath)
 
 

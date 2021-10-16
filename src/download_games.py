@@ -2,16 +2,22 @@ from multiprocessing.pool import ThreadPool
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from retry import retry
+from pathlib import Path
 import shutil
 import glob
 import time
 import os
+
+
 
 @retry(HTTPError, tries=-1, delay=60)
 def urlopen_retry(url):
     return urlopen(url)
 
 def download_file(url, years_to_download=None, chunk_size=16*1024):
+    DAG_PATH = os.path.realpath(__file__)
+    DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
+    #Path('../lichess_data').mkdir(exist_ok=True)
     filename = url.split("/")[-1]
     year = int(filename.split("_")[-1][:4])
     downloaded = [i.replace("./","") for i in glob.glob("./lichess*")]
@@ -21,7 +27,7 @@ def download_file(url, years_to_download=None, chunk_size=16*1024):
         #if int(filename.split("-")[-1][:2]) % 2 == 0:   #download even months only (save disk space)
         print(f"downloading {filename}...")
         response = urlopen_retry(url)
-        with open('../data/' + filename, 'wb') as local_f:
+        with open(DAG_PATH + filename, 'wb') as local_f:
             while True:
                 chunk = response.read(chunk_size)
                 if not chunk:

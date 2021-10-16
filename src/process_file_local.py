@@ -11,10 +11,11 @@ import psycopg2
 import psycopg2.extras
 import os
 
-SRC_PATH = os.getcwd()  #assumes cwd is lichess_games/src
 
 def process_file(url):
     """python function for airflow dag. takes a url who's file has been downloaded and loads data into database"""
+    DAG_PATH = os.path.realpath(__file__)
+    DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
     connect_string = "dbname=" + DB_NAME + " user=" + DB_USER
     conn = psycopg2.connect(connect_string)
     try:    #if any exception, write the id_dict to "user_IDs" database table to record new user_IDs before raising error
@@ -25,7 +26,7 @@ def process_file(url):
         #consumer will read data until it's read a full game's data, then add the game data to batch
         batch = []  #database writes are done in batches to minimize server roundtrips
         game = OrderedDict()
-        data_path = SRC_PATH+"/../data/"
+        data_path = DAG_PATH #+"../lichess_data/"
         filename = url.split('/')[-1]
         filepath = data_path + filename
         lines = read_lines(filepath)
