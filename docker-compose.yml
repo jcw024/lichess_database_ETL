@@ -1,0 +1,105 @@
+version: '2'
+
+services:
+  cli:
+      build: .
+      image: python_cli
+      environment:
+          - POSTGRESQL_DATABASE=lichess_games
+          - POSTGRESQL_PASSWORD=password
+          - POSTGRESQL_USERNAME=username
+          - HOSTNAME=postgresql-chess
+        #- POSTGRESQL_PORT=5000
+      volumes:
+          - ./cli_container_data:/home/usr/src
+      stdin_open: true
+      tty: true
+  postgresql-chess:
+      image: 'bitnami/postgresql:12'
+      environment:
+          - POSTGRESQL_DATABASE=lichess_games
+          - POSTGRESQL_PASSWORD=password
+          - POSTGRESQL_USERNAME=username
+      volumes:
+          - 'postgresql_data:/postgresql_chess'
+  postgresql:
+    image: docker.io/bitnami/postgresql:10
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_DATABASE=bitnami_airflow
+      - POSTGRESQL_USERNAME=bn_airflow
+      - POSTGRESQL_PASSWORD=bitnami1
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+  redis:
+    image: docker.io/bitnami/redis:6.0
+    volumes:
+      - 'redis_data:/bitnami'
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+  airflow-scheduler:
+    # TODO: to be reverted to use proper registry/distro on T39132
+    # image: docker.io/bitnami/airflow-scheduler:2
+    image: docker.io/bitnami/airflow-scheduler:2
+    environment:
+      - AIRFLOW_DATABASE_NAME=bitnami_airflow
+      - AIRFLOW_DATABASE_USERNAME=bn_airflow
+      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_EXECUTOR=CeleryExecutor
+      - AIRFLOW_WEBSERVER_HOST=airflow
+      - AIRFLOW_LOAD_EXAMPLES=no
+    depends_on:
+      - "airflow"
+    volumes:
+      - airflow_scheduler_data:/bitnami
+      - ./src:/opt/bitnami/airflow/dags
+      - ./airflow_requirements:/bitnami/python/
+  airflow-worker:
+    # TODO: to be reverted to use proper registry/distro on T39132
+    # image: docker.io/bitnami/airflow-worker:2
+    image: docker.io/bitnami/airflow-worker:2
+    environment:
+      - AIRFLOW_DATABASE_NAME=bitnami_airflow
+      - AIRFLOW_DATABASE_USERNAME=bn_airflow
+      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_EXECUTOR=CeleryExecutor
+      - AIRFLOW_WEBSERVER_HOST=airflow
+      - POSTGRESQL_DATABASE=lichess_games
+      - POSTGRESQL_PASSWORD=password
+      - POSTGRESQL_USERNAME=username
+      - HOSTNAME=postgresql-chess
+        #- POSTGRESQL_PORT=5000
+    depends_on:
+      - "airflow"
+    configs:
+      -  mode: 777
+    volumes:
+      - airflow_worker_data:/bitnami
+      - ./src:/opt/bitnami/airflow/dags
+      - ./airflow_requirements:/bitnami/python/
+  airflow:
+    image: docker.io/bitnami/airflow:2
+    environment:
+      - AIRFLOW_DATABASE_NAME=bitnami_airflow
+      - AIRFLOW_DATABASE_USERNAME=bn_airflow
+      - AIRFLOW_DATABASE_PASSWORD=bitnami1
+      - AIRFLOW_EXECUTOR=CeleryExecutor
+      - AIRFLOW_USERNAME=username
+      - AIRFLOW_PASSWORD=password
+    ports:
+      - '8080:8080'
+    volumes:
+      - airflow_data:/bitnami
+volumes:
+  airflow_scheduler_data:
+    driver: local
+  airflow_worker_data:
+    driver: local
+  airflow_data:
+    driver: local
+  postgresql_data:
+    driver: local
+  redis_data:
+    driver: local
