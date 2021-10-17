@@ -1,5 +1,6 @@
 import psycopg2
 import csv
+import os
 
 def select_query(sql_list, conn, filenames=None):
     """takes in a query or list of queries, a psycopg2 connection, and a list of filenames 
@@ -27,9 +28,13 @@ def select_query(sql_list, conn, filenames=None):
 
 
 if __name__ == "__main__":
-    DB_NAME = "lichess_games_db"
-    DB_USER = "joe"
-    connect_string = "dbname=" + DB_NAME + " user=" + DB_USER
+    DB_NAME = os.getenv('POSTGRESQL_DATABASE', 'lichess_games') #env variables come from docker-compose.yml
+    DB_USER = os.getenv('POSTGRESQL_USERNAME','username')
+    DB_PASSWORD = os.getenv('POSTGRESQL_PASSWORD','password')
+    HOSTNAME = os.getenv('HOSTNAME','localhost')
+    PORT = os.getenv('POSTGRESQL_PORT', '5432')
+    connect_string = "host=" + HOSTNAME + " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD \
+            + " port=" + PORT
     conn = psycopg2.connect(connect_string)
 
     queries = []
