@@ -4,7 +4,7 @@ import psycopg2.extras
 import io
 
 def initialize_tables(conn):
-    """creates a games and user_IDs table in postgresql if they do not already exist"""
+    """creates a games and user_ids table in postgresql if they do not already exist"""
     #setup database tables. database name and user is configured in CONFIG.py
     cur = conn.cursor()
     #sort columns alphabetically for the copy_from method used to insert rows later
@@ -22,7 +22,7 @@ def initialize_tables(conn):
             )
     cur.execute(
             """
-            CREATE TABLE IF NOT EXISTS user_IDs (
+            CREATE TABLE IF NOT EXISTS user_ids (
             ID INT NOT NULL PRIMARY KEY, username varchar(30) NOT NULL)
             """
             )
@@ -85,15 +85,15 @@ def write_row(columns, values, conn, table):
 
 def dump_dict(data_dict, conn):
     id_list = [{"id":i[1],"username":i[0]} for i in data_dict.items()]  #formatting to fit expected input of copy_data function
-    copy_data(conn, id_list, "user_IDs")
+    copy_data(conn, id_list, "user_ids")
     conn.commit()
     return
 
 def load_id_dict(conn):
-    """reads data from the 'user_IDs' table and returns the data in a dict
+    """reads data from the 'user_ids' table and returns the data in a dict
     of username: ID"""
     cur = conn.cursor()
-    cur.execute("SELECT * FROM user_IDs;")
+    cur.execute("SELECT * FROM user_ids;")
     conn.commit()
     user_IDs = cur.fetchall()
     id_dict = {}
