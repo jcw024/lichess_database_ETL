@@ -217,7 +217,7 @@ def hexbin_elo_vs_games_played(filename, y="diff", mode="net"):
     df_elo_diff = pd.read_csv("query_out_storage/elo_diff_per_player.csv")
     df_total_games = df_total_games.rename(columns={"white":"player"})
     df = df_total_games.merge(df_elo_diff, on="player")
-    if mode == "per_day":
+    if mode == "per_month":
         print("reading total_blitz_games_per_player_over_time.csv")
         df_time = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
         print("converting to months_since_start")
@@ -228,7 +228,7 @@ def hexbin_elo_vs_games_played(filename, y="diff", mode="net"):
         df["total_games"] = df["total_games"]/df["months_since_start_y"]
         df.replace([np.inf,-np.inf],np.nan,inplace=True)
     if y == "diff":
-        if mode == "per_day":
+        if mode == "per_month":
             df["diff"] = df["diff"]/df["months_since_start_y"]
             df.replace([np.inf,-np.inf],np.nan,inplace=True)
             df = df.dropna()
@@ -240,12 +240,12 @@ def hexbin_elo_vs_games_played(filename, y="diff", mode="net"):
     ax = g.ax_joint
     cbar = plt.colorbar(location='right')
     cbar.set_label('Number of players')
-    if mode == "per_day":
+    if mode == "per_month":
         ax.set_xlabel("Number of Games Played per Month")
     else:
         ax.set_xlabel("Number of Games Played")
     if y == "diff":
-        if mode == "per_day":
+        if mode == "per_month":
             ax.set_ylabel('Average Elo Change per Month')
         else:
             ax.set_ylabel('Net Elo Change')
@@ -269,6 +269,6 @@ if __name__ == "__main__":
     #pieplot_players_per_elo_band("plots/players_per_elo_bracket.png")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played.png")
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
-    #hexbin_elo_vs_games_played("plots/elo_by_total_games_played_per_day_blitz.png", y="elo", mode="per_day")
-    hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_day_blitz.png", mode="per_day")
+    #hexbin_elo_vs_games_played("plots/elo_by_total_games_played_per_month_blitz.png", y="elo", mode="per_month")
+    #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_month_blitz.png", mode="per_month")
 
