@@ -98,6 +98,15 @@ def pieplot_players_per_elo_band(filename):
     ax.set_title("Total Number of Players per Elo Bracket")
     plt.savefig(filename, dpi=300, bbox_inches='tight')
 
+def pieplot_games_per_event(filename):
+    df = pd.read_csv("./query_out_storage/total_games_per_event.csv")
+    labels = ["Bullet", "Blitz", "Classical", "Correspondence", "Rapid"]
+    pie, ax = plt.subplots(figsize=[10,6])
+    patches, text, _ = plt.pie(x=df["count"], labels=labels, wedgeprops={'linewidth':1, 'linestyle':'-', 'edgecolor':'k'}, startangle=90, autopct='%1.1f%%')
+    plt.legend(patches, labels, loc='center right', bbox_to_anchor=(1.4, .5),fontsize=8)
+    ax.set_title("Games Played per Time Control")
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+
 def histogram_player_churn(filename):
     df = pd.read_csv("query_out_storage/total_games_per_player.csv")
     h, ax = plt.subplots(figsize=[10,6])
@@ -271,4 +280,5 @@ if __name__ == "__main__":
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played_per_month_blitz.png", y="elo", mode="per_month")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_month_blitz.png", mode="per_month")
+    pieplot_games_per_event("./plots/games_per_event.png")
 
