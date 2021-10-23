@@ -198,6 +198,9 @@ Most analyzed games are clustered at the top levels, probably by viewers or poss
 - **Most positive change:** 1404. This is held by the account PeshkaCh, as of this writing (Oct 2021) an 11 year old world chess champion from ukraine. Browsing some of the other top accounts, some of them are bots, many of them have been closed.
 - **Highest positive change/month:** 897. I have explored accounts with the greatest elo change/month, however most of them are either bots with a very short activity timespan (ok\_zabu) or accounts that have been closed/banned probably for cheating (as expected). I don't think these accounts are particularly interesting. For reference, the account with the most positive change had an average increase of 33.45 elo/month.
 
+![Alt test](./screenshots/peschkach_bio.png?raw=true)
+![Alt test](./screenshots/peschkach.png?raw=true)
+
 **How do most games finish?**
 
 - Closed for fair play violation: 25,251 (0.01%)
