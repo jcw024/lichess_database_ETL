@@ -246,7 +246,7 @@ You can use the cli container if you want to play with any of the python code (i
     docker ps
     docker container exec -it <python_cli_container_id> bash
 
-Alternatively, you could just install the required python packages by installing from requirements.txt
+Alternatively, you could just install the required python packages by installing from requirements.txt and run the scripts without docker:
 
     pip install -r requirements.txt
 
