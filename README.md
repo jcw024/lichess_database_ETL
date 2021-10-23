@@ -225,7 +225,7 @@ First, you're going to need docker and docker compose installed on your computer
 
 Clone this repository to your computer:
 
-    git clone
+    git clone <link-from-this-repository> .
 
 Give global write access to the src folder (for docker-compose)
 
