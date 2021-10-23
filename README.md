@@ -237,10 +237,13 @@ Run docker-compose up at the home directory of the repository where the docker-c
 
 Once the containers are up and running, you can get to the airflow webserver UI by going to localhost:8080 in your web browser. You can login with "username" and "password" (the default specified in the docker-compose.yml file).
 
-You can click the switch to activate the DAG to start loading data into postgres. That's pretty much all you need to do to start loading data into your postgres database. You may want to modify the "airflow\_dag\_local.py file if you want to download data from particular months. NOTE: There is a DAG that uses Kafka that I was playing with, but does not work without setting up kafka (complicated).
+You can click the switch to activate the DAG to start loading data into postgres. That's pretty much all you need to do to start loading data into your postgres database. You may want to modify the "airflow\_dag\_local.py" file if you want to download data from particular months. NOTE: There is a DAG that uses Kafka that I was playing with, but does not work without setting up kafka (complicated):
+
+![Alt test](./screenshots/airflow_ui.png?raw=true)
 
 You can use the cli container if you want to play with any of the python code (i.e. modify the code that transforms the data from lichess to postgres)
 
+    docker ps
     docker container exec -it <python_cli_container_id> bash
 
 Alternatively, you could just install the required python packages by installing from requirements.txt
@@ -249,5 +252,6 @@ Alternatively, you could just install the required python packages by installing
 
 You can run SQL queries directly on the postgres database containing all the chess games you've downloaded (i.e. to peek at what the data looks like going into postgres):
 
+    docker ps
     docker container exec -it <postgresql-chess_container_id> psql lichess_games username 
 
