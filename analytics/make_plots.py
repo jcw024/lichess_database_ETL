@@ -275,10 +275,11 @@ if __name__ == "__main__":
     #lineplot_elo_vs_days("./plots/blitz_elo_over_time/blitz_elo_over_time.png")
     #lineplot_elo_vs_months()
     #lineplot_elo_vs_months(rating_diff_cutoff=100)
+    lineplot_elo_vs_months(rating_diff_cutoff=800)
     #pieplot_players_per_elo_band("plots/players_per_elo_bracket.png")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played.png")
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played_per_month_blitz.png", y="elo", mode="per_month")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_month_blitz.png", mode="per_month")
-    pieplot_games_per_event("./plots/games_per_event.png")
+    #pieplot_games_per_event("./plots/games_per_event.png")
 
