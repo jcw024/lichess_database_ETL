@@ -99,6 +99,26 @@ From the chart, players in the 800-1000 range on average improve their elo by 10
 
 So it looks like for most people, improvement happens over long periods of time of consistent study/activity on the scale of months for beginners and years for experienced players.
 
+But what about people who seem to have gone from beginner to ~2000 elo in just a couple of years? It's not possible to see what their progressions looked like from the plots above, yet these types of people *are* out there. I wanted to take a look at how many of these people actually exist. Are they really as rare as the above data seems to suggest?
+
+Here's a heatmap showing the number of players who have raised their rating by X elo, divided up by their starting elo:
+
+![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_time.png?raw=true)
+
+So it seems like there is a sizeable number of people who have made *significant* gains since they joined lichess as a beginner (~800-1200 elo). From the data for people in the 800-1200 starting range, there are about 120 people who have improved their elo by over 800 points since joining and about 1000 people who have improved their elo at least 500 points. However, it is important to note that the data does not filter out bots, cheaters, or smurfs and it's unclear what percentage such people contribute to these counts, but I suspect it's small.
+
+Another piece of information that would be interesting to look at is how long did it take on average for these "outliers" to achieve such impressive gains?
+
+Here's another heatmap showing the average time it took for people to achieve X elo gain, divided up by their starting elo:
+
+![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_count.png?raw=true)
+
+The results were actually pretty surprising. It looks like these "outliers" seem to have made these gains in a little less than *2 years*! Amazingly, that's about the amount of time it took GM Hikaru Nakamura to bridge that gap when he was learning chess as a child. So it seems that there is hope for people looking to become strong players. With serious study and dedication, it looks like it's possible to make massive improvements in a reasonably short amount of time.
+
+But one disclaimer I would like to add to that is to emphasize that these players are *outliers*. There are only a few thousand, *maybe* a few tens of thousands that have managed to accomplish this in comparison to the 820,000 player population included in the dataset. These people comprise just 1% of all players. While their results are *possible*, one could argue that these are not "ordinary" people.
+
+The 0 elo gain column is also a bit deceptive, seemingly implying that more time = more elo gain given the low time values listed in that column. There's some *tiny* hint of truth to that, but I think this number is just being dragged down by the mass of newer players. If we remember some of the earlier analysis, most people who actually stay active for longer times do not actually improve to the extent potentially suggested by this heatmap.
+
 ### Does Playing More Games Make You A Better Chess Player?
 
 But while I have the data here, let's take a moment to answer the question everyone's asking: **does playing more games make you a better chess player?**
