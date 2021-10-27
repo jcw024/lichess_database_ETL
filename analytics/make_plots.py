@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import re
 import math
 from pathlib import Path
-
+from matplotlib.colors import LogNorm
 
 def convert_day(x):
     if x == 0: x = "Sunday"
@@ -263,6 +263,40 @@ def hexbin_elo_vs_games_played(filename, y="diff", mode="net"):
     fig = ax.get_figure()
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
+def heatmap_elo_vs_count(filename):
+    df = pd.read_csv("query_out_storage/elo_diff_per_player.csv")
+    df_pos = df[df["diff"] >= 0]
+    df_pos["diff_round"] = df_pos["diff"].apply(lambda x: round(x,-2))
+    df_grouped = df_pos.groupby(by=["band", "diff_round"]).mean()
+    df_grouped["count"] = df_pos.groupby(by=["band", "diff_round"]).count()["player"]
+    df_grouped = df_grouped.reset_index()
+    df_count_pivot = df_grouped.pivot(index="band",columns="diff_round",values="count")
+    df_count_pivot["tmp"] = [7,6,5,4,3,2,1,8]
+    df_count_pivot = df_count_pivot.sort_values('tmp').drop('tmp',1)
+    ax = sns.heatmap(df_count_pivot, square=True, norm=LogNorm(), cbar_kws={'label':'# of Players'})
+    ax.set_xlabel("Elo Gain")
+    ax.set_ylabel("Starting Elo")
+    ax.set_title("Count of Elo Gain vs Starting Elo Pairs")
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+
+def heatmap_elo_vs_time(filename):
+    df = pd.read_csv("query_out_storage/elo_diff_per_player.csv")
+    df_pos = df[df["diff"] >= 0]
+    df_pos["diff_round"] = df_pos["diff"].apply(lambda x: round(x,-2))
+    df_grouped = df_pos.groupby(by=["band", "diff_round"]).mean()
+    df_grouped["time"] = df_pos.groupby(by=["band", "diff_round"]).mean()["months_since_start"]
+    df_grouped["time"] = df_grouped["time"].apply(lambda x: round(x))
+    df_grouped = df_grouped.reset_index()
+    df_count_pivot = df_grouped.pivot(index="band",columns="diff_round",values="time")
+    df_count_pivot["tmp"] = [7,6,5,4,3,2,1,8]
+    df_count_pivot = df_count_pivot.sort_values('tmp').drop('tmp',1)
+    ax = sns.heatmap(df_count_pivot, square=True, cbar_kws={'label':'Time to Reach (Months)'}, annot=True)
+    ax.set_xlabel("Elo Gain")
+    ax.set_ylabel("Starting Elo")
+    ax.set_title("Avg Time to Reach Elo Gain vs. Starting Elo")
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+
+
 if __name__ == "__main__":
     Path("./plots/popular_play_times").mkdir(parents=True, exist_ok=True)
     Path("./plots/blitz_elo_over_time").mkdir(parents=True, exist_ok=True)
@@ -275,11 +309,13 @@ if __name__ == "__main__":
     #lineplot_elo_vs_days("./plots/blitz_elo_over_time/blitz_elo_over_time.png")
     #lineplot_elo_vs_months()
     #lineplot_elo_vs_months(rating_diff_cutoff=100)
-    lineplot_elo_vs_months(rating_diff_cutoff=800)
+    #lineplot_elo_vs_months(rating_diff_cutoff=800)
     #pieplot_players_per_elo_band("plots/players_per_elo_bracket.png")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played.png")
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played.png", y="elo")
     #hexbin_elo_vs_games_played("plots/elo_by_total_games_played_per_month_blitz.png", y="elo", mode="per_month")
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_month_blitz.png", mode="per_month")
     #pieplot_games_per_event("./plots/games_per_event.png")
+    #heatmap_elo_vs_count("./plots/blitz_elo_over_time/heatmap_elo_gain_count.png")
+    heatmap_elo_vs_time("./plots/blitz_elo_over_time/heatmap_elo_gain_time.png")
 
