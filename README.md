@@ -103,7 +103,7 @@ But what about people who seem to have gone from beginner to ~2000 elo in just a
 
 Here's a heatmap showing the number of players who have raised their rating by X elo, divided up by their starting elo:
 
-![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_time.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_count.png?raw=true)
 
 So it seems like there is a sizeable number of people who have made *significant* gains since they joined lichess as a beginner (~800-1200 elo). From the data for people in the 800-1200 starting range, there are about 120 people who have improved their elo by over 800 points since joining and about 1000 people who have improved their elo at least 500 points. However, it is important to note that the data does not filter out bots, cheaters, or smurfs and it's unclear what percentage such people contribute to these counts, but I suspect it's small.
 
@@ -111,7 +111,7 @@ Another piece of information that would be interesting to look at is how long di
 
 Here's another heatmap showing the average time it took for people to achieve X elo gain, divided up by their starting elo:
 
-![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_count.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_time.png?raw=true)
 
 The results were actually pretty surprising. It looks like these "outliers" seem to have made these gains in a little less than *2 years*! Amazingly, that's about the amount of time it took GM Hikaru Nakamura to bridge that gap when he was learning chess as a child. So it seems that there is hope for people looking to become strong players. With serious study and dedication, it looks like it's possible to make massive improvements in a reasonably short amount of time.
 
