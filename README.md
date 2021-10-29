@@ -226,7 +226,7 @@ Most analyzed games are clustered at the top levels, probably by viewers or poss
 - Closed for fair play violation: 25,251 (0.01%)
 - Game abandoned: 770,328 (0.17%)
 - Lost due to time: 149,958,742 (33%)
-- Finished normally: 62,791,173 (67%)
+- Finished normally: 301,876,379 (67%)
 
 **How many games were played where black and/or white had a provisional rating (rating gain/loss of over 30 points)?**
 
