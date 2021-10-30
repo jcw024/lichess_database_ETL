@@ -73,7 +73,7 @@ Now to the fun stuff.
 
 What does the data say about chess improvement rate?
 
-After extracting the data for elo per player over time (including games as white and black), filtering for one time control, calculating the monthly average, aligning everyone's starting dates, assigning the ratings into rating bins, and averaging the ratings by the rating bins, I get the plot below:
+After extracting the data for elo per player over time (including games as white and black), filtering for one time control, calculating the monthly average, aligning everyone's starting dates, assigning the ratings into rating bins, and averaging the ratings by the rating bins (with 95% confidence intervals), I get the plot below:
 
 ![Alt test](./analytics/plots/blitz_elo_over_time/blitz_elo_over_time_-1000_elo_cutoff.png?raw=true "blitz elo over time (all)")
  
@@ -119,7 +119,7 @@ But one disclaimer I would like to add to that is to emphasize that these player
 
 The 0 elo gain column is also a bit deceptive, seemingly implying that more time = more elo gain given the low time values listed in that column. There's some *tiny* hint of truth to that, but I think this number is just being dragged down by the mass of newer players. If we remember some of the earlier analysis, most people who actually stay active for longer times do not actually improve to the extent potentially suggested by this heatmap.
 
-To get a more detailed view of how *many* players are actually improving, I plotted the rating gain over time again, but this time divided up the data by percentiles according to each player's net rating change for each starting rating band:
+To get a more detailed view of how *many* players are actually improving, I plotted the rating gain over time again, but this time divided up the data by percentiles according to each player's net rating change for each starting rating band (with 95% confidence intervals):
 
 ![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_800-999.png?raw=true)
 ![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_1000-1199.png?raw=true)
