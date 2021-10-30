@@ -296,6 +296,46 @@ def heatmap_elo_vs_time(filename):
     ax.set_title("Avg Time to Reach Elo Gain vs. Starting Elo")
     plt.savefig(filename, dpi=300, bbox_inches='tight')
 
+def lineplot_elo_vs_time_percentiles(pct_list=[0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99]):
+    df = pd.read_csv("query_out_storage/total_blitz_games_per_player_over_time.csv")
+    print("aggregating data by months...")
+    df["days_since_start"] = df["days_since_start"].apply(lambda x: int(re.search(r'\d+', x).group(0)))
+    df["months_since_start"] = df["days_since_start"].apply(lambda x: math.floor(x/30.5))
+    df = df.groupby(["player","months_since_start"]).mean().reset_index()
+    print("calculating net elo diff per player...")
+    df_starting_elo = df[df["months_since_start"] == 0]
+    for lower_elo_lim in range(800,2201,200):
+        upper_elo_lim = lower_elo_lim + 200
+        df_band = df_starting_elo[(df_starting_elo["min"] >= lower_elo_lim) & (df_starting_elo["min"] < upper_elo_lim)]
+        df.loc[df["player"].isin(df_band["player"]), "band"] = f"{lower_elo_lim} - {upper_elo_lim-1}"
+        
+    df = df.dropna()
+    df_tmp = df.groupby(["player"]).min()
+    df_start_elo = pd.merge(df[["player","min", "band","months_since_start"]],df_tmp["months_since_start"], on=["player","months_since_start"])
+    df_tmp = df.groupby(["player"]).max()
+    df_end_elo = pd.merge(df[["player","min","months_since_start", "band"]],df_tmp["months_since_start"], on=["player","months_since_start"])
+    df_end_elo = df_end_elo.set_index("player")
+    df_starting_elo = df_starting_elo.set_index("player")
+    df_end_elo["diff"] = df_end_elo["min"] - df_starting_elo["min"]
+    df_end_elo = df_end_elo.reset_index()
+    print("calculating percentiles within each rating band...")
+    #calculate percentile within starting elo band
+    df_end_elo = df_end_elo.assign(percentile=df_end_elo.groupby("band")["diff"].rank(pct=True))
+    #round to nearest percentile of interest
+    df_end_elo["percentile"] = df_end_elo["percentile"].apply(lambda x: min(pct_list, key=lambda y: abs(y - x)))
+    df = df.join(df_end_elo[["player","percentile"]].set_index('player'), on="player")
+    #plot percentile lines
+    for band in df_end_elo["band"].unique():
+        print(f"generating percentile plots for {band}...")
+        ax = sns.lineplot(data=df[df["band"] == band], x="months_since_start", 
+                y="min", size="percentile", hue="percentile", legend="full")
+        ax.set_xlabel("months since player's first stable rating")
+        ax.set_ylabel('stable rating')
+        ax.set_title(f"rating vs. time percentiles: {band} start rating")
+        fig = ax.get_figure()
+        fig.savefig(f"plots/blitz_elo_over_time/rating_percentiles_{band.replace(' ','')}.png", dpi=300, bbox_inches='tight')
+        fig.clf()
+        
 
 if __name__ == "__main__":
     Path("./plots/popular_play_times").mkdir(parents=True, exist_ok=True)
@@ -317,5 +357,5 @@ if __name__ == "__main__":
     #hexbin_elo_vs_games_played("plots/elo_diff_by_total_games_played_per_month_blitz.png", mode="per_month")
     #pieplot_games_per_event("./plots/games_per_event.png")
     #heatmap_elo_vs_count("./plots/blitz_elo_over_time/heatmap_elo_gain_count.png")
-    heatmap_elo_vs_time("./plots/blitz_elo_over_time/heatmap_elo_gain_time.png")
-
+    #heatmap_elo_vs_time("./plots/blitz_elo_over_time/heatmap_elo_gain_time.png")
+    lineplot_elo_vs_time_percentiles()

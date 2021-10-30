@@ -119,6 +119,21 @@ But one disclaimer I would like to add to that is to emphasize that these player
 
 The 0 elo gain column is also a bit deceptive, seemingly implying that more time = more elo gain given the low time values listed in that column. There's some *tiny* hint of truth to that, but I think this number is just being dragged down by the mass of newer players. If we remember some of the earlier analysis, most people who actually stay active for longer times do not actually improve to the extent potentially suggested by this heatmap.
 
+To get a more detailed view of how *many* players are actually improving, I plotted the rating gain over time again, but this time divided up the data by percentiles according to each player's net rating change for each starting rating band:
+
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_800-999.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_1000-1199.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_1200-1399.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_1400-1599.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_1600-1799.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_1800-1999.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_2000-2199.png?raw=true)
+![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_2200-2399.png?raw=true)
+
+The data looks consistent with previous analysis, but I think it better illustrates how only a small percentage of players actually do improve. It looks like only about the top 10% of players achieve meaningful improvement (\> 100 rating gain) over time, with only about 1% of players breaking past more than 200 elo in a few years. The majority 90% of players seem to hover around their initial rating despite being active on lichess for several years.
+
+One side note about the data: at the 50th percentile in each plot, the line seems to be very noisy and short. Since the percentile assignments are determined by ending rating - starting rating and the most common rating change is 0, the 50th percentile seems to be capturing the players who have only played a very few number of games and/or have been active only a short amount of time. I suspect this results in a high number of players who generate very sparse datapoints for the 50th percentile leading to the noisy 50th percentile line shown in the plots.
+
 ### Does Playing More Games Make You A Better Chess Player?
 
 But while I have the data here, let's take a moment to answer the question everyone's asking: **does playing more games make you a better chess player?**
