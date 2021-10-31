@@ -63,6 +63,14 @@ Here's a couple of screenshots of what the pipeline looks like:
 
 After a lot of troubleshooting and a few weeks of waiting for the data to download on my dinky 10 year old laptop, I got about 100 Gb of data loaded into postgres, spanning 5.5 years, 450 million games, and 2.3 million players.
 
+Here's a peek at what the processed data looks like in my postgresql database (the 'games' table). To save space, I truncated the event names and termination type to single characters (b = bullet, B = blitz, c = classical, C = correspondence, r = rapid; N = finished normally, F = lost/won on time, A = game aborted, ? = other, i.e. violating terms of service/cheating) and took out the 'https://lichess.org/' part for the 'site' column, leaving the unique game identifier:
+
+![Alt test](./screenshots/processed_data.png?raw=true)
+
+I also assigned user ids to replace the username because an int type takes up less space (4 bytes) than varchar (~10-20 bytes depending on username length). The username can still be looked up by referencing/joining the user\_ids table:
+
+![Alt test](./screenshots/user_ids_table.png?raw=true)
+
 Once that was done, I did the analysis with a bit of SQL and pandas then made the plots with seaborn/matplotlib.
 
 ## Data Analysis
