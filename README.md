@@ -1,6 +1,6 @@
 # How Long Does It Take Ordinary People To "Get Good" At Chess?
 
-TL;DR: According to 5.5 years of data from 2.3 million players and 450 million games, most beginners will improve their rating by 100 lichess elo points in 3-6 months. Most "experienced" chess players in the 1400-1800 rating range will take 3-4 years to improve their rating by 100 lichess elo points. There's no strong evidence that playing more games makes you improve quicker.
+TL;DR: According to 5.5 years of data from 2.3 million players and 450 million games, most beginners will improve their rating by 100 lichess rating points in 3-6 months. Most "experienced" chess players in the 1400-1800 rating range will take 3-4 years to improve their rating by 100 lichess rating points. There's no strong evidence that playing more games makes you improve quicker.
 
 ## Table Of Contents
 
@@ -17,7 +17,7 @@ TL;DR: According to 5.5 years of data from 2.3 million players and 450 million g
 
 I've been a casual chess player for a few years now. Like most people who get into chess, one question that's been at the back of my mind is, like the title suggests, how long is it going to take me to actually get good at this game?
 
-Fortunately for us, lichess.org, the largest open source online chess website, publishes all chess games played on their site freely available for the public to download (including elo rating data). This gives me just what I need to take a crack at this question.
+Fortunately for us, lichess.org, the largest open source online chess website, publishes all chess games played on their site freely available for the public to download (including rating data). This gives me just what I need to take a crack at this question.
 
 But before we start getting into the data mining, we would first need to define what is "good at chess". Naturally, that's going to very from person to person. If your definition of "good" is never losing, that's never going to happen (unless you're picky about who you choose to play or you're a computer). If your definition of "good" is better than most everyday people you would find off the street, then you would probably get there after spending 30 minutes learning how the pieces move.
 
@@ -52,7 +52,7 @@ Here's what the raw data looks like:
 
 I believe it's an export from MongoDB, a NoSQL document database, which does not have a fixed schema. The problem with schemaless databases like MongoDB is they aren't designed for complex analytical queries (but great for application flexibility and scaling for big data). 
 
-I decided to migrate the data into postgreSQL, a structured, relational database. That's going to allow me to run complex SQL queries to get the elo rating per player over time, which is really what I need to answer my question. It also gives me the flexibility to play around with the data for other questions that might pop up in the future.
+I decided to migrate the data into postgreSQL, a structured, relational database. That's going to allow me to run complex SQL queries to get the rating per player over time, which is really what I need to answer my question. It also gives me the flexibility to play around with the data for other questions that might pop up in the future.
 
 To help manage the ETL process, I built a datapipeline using Airflow to schedule the downloading, processing, and deletion of each data file on lichess. The nice thing about Airflow is it comes with a web UI that helps you visually see where you're at in your data pipeline. It also provides logging and task status to help make troubleshooting/debugging a bit easier.
 
@@ -81,43 +81,43 @@ Now to the fun stuff.
 
 What does the data say about chess improvement rate?
 
-After extracting the data for elo per player over time (including games as white and black), filtering for one time control, calculating the monthly average, aligning everyone's starting dates, assigning the ratings into rating bins, and averaging the ratings by the rating bins (with 95% confidence intervals), I get the plot below:
+After extracting the data for per player over time (including games as white and black), filtering for one time control, calculating the monthly average, aligning everyone's starting dates, assigning the ratings into rating bins, and averaging the ratings by the rating bins (with 95% confidence intervals), I get the plot below:
 
 ![Alt test](./analytics/plots/blitz_elo_over_time/blitz_elo_over_time_-1000_elo_cutoff.png?raw=true "blitz elo over time (all)")
  
-I analyzed the data from the perspective of a player's monthly average which should be a better estimate of a player's playing strength than looking at the game-by-game elo fluctuation. I'm not particularly interested in cases of players who managed to jump 100 points in one afternoon blitz binge session. I believe those instances can be attributed to random chance rather than those players suddenly having a "eureka" moment that boosted their playing strength by 100 elo points overnight.
+I analyzed the data from the perspective of a player's monthly average which should be a better estimate of a player's playing strength than looking at the game-by-game rating fluctuation. I'm not particularly interested in cases of players who managed to jump 100 points in one afternoon blitz binge session. I believe those instances can be attributed to random chance rather than those players suddenly having a "eureka" moment that boosted their playing strength by 100 rating points overnight.
 
-From the graph, it looks like improvement rate depends a lot on what your current elo is. As one might expect, lower elo ratings have the greatest opportunity to improve quickly, while higher elo ratings will take much longer to see improvement. Most players in the 800-1000 rating range (about 6% of players) will see their elo jump up 100 points in just a few months of activity. Most players in the 1600-2000 range (27% of players) will take 4 years or more to move up just 100 elo points. 
+From the graph, it looks like improvement rate depends a lot on what your current rating is. As one might expect, lower ratings have the greatest opportunity to improve quickly, while higher ratings will take much longer to see improvement. Most players in the 800-1000 rating range (about 6% of players) will see their rating jump up 100 points in just a few months of activity. Most players in the 1600-2000 range (27% of players) will take 4 years or more to move up just 100 rating points. 
 
 I'm not sure what the weird bump and dip is that happens around the 3 year mark. That may be an artifact of the data only containing 5.5 years of data, with datapoints heavily clustered around lower month counts (see player churn).
 
-4 years just for 100 elo points? Seems a bit longer than I expected. But it is plausible.
+4 years just for 100 rating points? Seems a bit longer than I expected. But it is plausible.
 
 There are players in the data with long histories of activity who have not improved their rating despite playing many games over the span of many years. See the player who's played the most games of all time on lichess:
 
 ![Alt test](./screenshots/german11_blitz.png?raw=true "german11 blitz stats")
 
-But what if the mean ratings are being dragged down by the mass of "casual" players who aren't interested in improving and just play for fun? (Not that there's anything wrong with that). Is there a way to look at just the players who are serious about improving? I tried filtering the data to players who have gained at least 100 elo points since joining lichess:
+But what if the mean ratings are being dragged down by the mass of "casual" players who aren't interested in improving and just play for fun? (Not that there's anything wrong with that). Is there a way to look at just the players who are serious about improving? I tried filtering the data to players who have gained at least 100 rating points since joining lichess:
 
 ![Alt test](./analytics/plots/blitz_elo_over_time/blitz_elo_over_time_100_elo_cutoff.png?raw=true)
 
 There's a strange jump in rating in the first month for players in this category that is less prevalent in the entire dataset. It's possible this could be due to players starting out on lichess as underrated and quickly catching up in the first month. I'm going to ignore the first month when calculating the improvement rate.
 
-From the chart, players in the 800-1000 range on average improve their elo by 100 points in just 1-2 months. Players in the 1600-2000 range improve their elo by 100 points in about 3-4 years, which isn't much different from the average of all players. One explanation for this is that most players at this rating range are already considered "serious" players and most of them "have what it takes" to improve at chess. Setting a cutoff in the data for 100 elo points of improvement is not as strong a filter for players in this range.
+From the chart, players in the 800-1000 range on average improve their rating by 100 points in just 1-2 months. Players in the 1600-2000 range improve their rating by 100 points in about 3-4 years, which isn't much different from the average of all players. One explanation for this is that most players at this rating range are already considered "serious" players and most of them "have what it takes" to improve at chess. Setting a cutoff in the data for 100 rating points of improvement is not as strong a filter for players in this range.
 
 So it looks like for most people, improvement happens over long periods of time of consistent study/activity on the scale of months for beginners and years for experienced players.
 
-But what about people who seem to have gone from beginner to ~2000 elo in just a couple of years? It's not possible to see what their progressions looked like from the plots above, yet these types of people *are* out there. I wanted to take a look at how many of these people actually exist. Are they really as rare as the above data seems to suggest?
+But what about people who seem to have gone from beginner to ~2000 rating in just a couple of years? It's not possible to see what their progressions looked like from the plots above, yet these types of people *are* out there. I wanted to take a look at how many of these people actually exist. Are they really as rare as the above data seems to suggest?
 
-Here's a heatmap showing the number of players who have raised their rating by X elo, divided up by their starting elo:
+Here's a heatmap showing the number of players who have raised their rating by X rating, divided up by their starting rating:
 
 ![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_count.png?raw=true)
 
-So it seems like there is a sizeable number of people who have made *significant* gains since they joined lichess as a beginner (~800-1200 elo). From the data for people in the 800-1200 starting range, there are about 120 people who have improved their elo by over 800 points since joining and about 1000 people who have improved their elo at least 500 points. However, it is important to note that the data does not filter out bots, cheaters, or smurfs and it's unclear what percentage such people contribute to these counts, but I suspect it's small.
+So it seems like there is a sizeable number of people who have made *significant* gains since they joined lichess as a beginner (~800-1200 rating). From the data for people in the 800-1200 starting range, there are about 120 people who have improved their rating by over 800 points since joining and about 1000 people who have improved their rating at least 500 points. However, it is important to note that the data does not filter out bots, cheaters, or smurfs and it's unclear what percentage such people contribute to these counts, but I suspect it's small.
 
 Another piece of information that would be interesting to look at is how long did it take on average for these "outliers" to achieve such impressive gains?
 
-Here's another heatmap showing the average time it took for people to achieve X elo gain, divided up by their starting elo:
+Here's another heatmap showing the average time it took for people to achieve X rating gain, divided up by their starting rating:
 
 ![Alt test](./analytics/plots/blitz_elo_over_time/heatmap_elo_gain_time.png?raw=true)
 
@@ -125,7 +125,7 @@ The results were actually pretty surprising. It looks like these "outliers" seem
 
 But one disclaimer I would like to add to that is to emphasize that these players are *outliers*. There are only a few thousand, *maybe* a few tens of thousands that have managed to accomplish this in comparison to the 820,000 player population included in the dataset. These people comprise just 1% of all players. While their results are *possible*, one could argue that these are not "ordinary" people.
 
-The 0 elo gain column is also a bit deceptive, seemingly implying that more time = more elo gain given the low time values listed in that column. There's some *tiny* hint of truth to that, but I think this number is just being dragged down by the mass of newer players. If we remember some of the earlier analysis, most people who actually stay active for longer times do not actually improve to the extent potentially suggested by this heatmap.
+The 0 rating gain column is also a bit deceptive, seemingly implying that more time = more rating gain given the low time values listed in that column. There's some *tiny* hint of truth to that, but I think this number is just being dragged down by the mass of newer players. If we remember some of the earlier analysis, most people who actually stay active for longer times do not actually improve to the extent potentially suggested by this heatmap.
 
 To get a more detailed view of how *many* players are actually improving, I plotted the rating gain over time again, but this time divided up the data by percentiles according to each player's net rating change for each starting rating band (with 95% confidence intervals):
 
@@ -138,7 +138,7 @@ To get a more detailed view of how *many* players are actually improving, I plot
 ![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_2000-2199.png?raw=true)
 ![Alt test](./analytics/plots/blitz_elo_over_time/rating_percentiles_2200-2399.png?raw=true)
 
-The data looks consistent with previous analysis, but I think it better illustrates how only a small percentage of players actually do improve. It looks like only about the top 10% of players achieve meaningful improvement (\> 100 rating gain) over time, with only about 1% of players breaking past more than 200 elo in a few years. The majority 90% of players seem to hover around their initial rating despite being active on lichess for several years.
+The data looks consistent with previous analysis, but I think it better illustrates how only a small percentage of players actually do improve. It looks like only about the top 10% of players achieve meaningful improvement (\> 100 rating gain) over time, with only about 1% of players breaking past more than 200 rating in a few years. The majority 90% of players seem to hover around their initial rating despite being active on lichess for several years.
 
 One side note about the data: at the 50th percentile in each plot, the line seems to be very noisy and short. Since the percentile assignments are determined by ending rating - starting rating and the most common rating change is 0, the 50th percentile seems to be capturing the players who have only played a very few number of games and/or have been active only a short amount of time. I suspect this results in a high number of players who generate very sparse datapoints for the 50th percentile leading to the noisy 50th percentile line shown in the plots.
 
@@ -159,9 +159,9 @@ This is what the data says:
 **Net Elo Gain Per Month vs. Number of Games Played Per Month**
 ![Alt test](./analytics/plots/elo_diff_per_month_by_total_games_per_month_blitz.png?raw=true "net elo gain/month vs number of games/month")
 
-It seems like no matter how the data is sliced up, there does not seem to be a clear 1:1 linear correlation between improvement rate and number of games played. There's *maybe* a slight upward trend with elo gain vs games per month, but it seems to be a weak trend.
+It seems like no matter how the data is sliced up, there does not seem to be a clear 1:1 linear correlation between improvement rate and number of games played. There's *maybe* a slight upward trend with rating gain vs games per month, but it seems to be a weak trend.
 
-However, there does seem to be a sweet spot in the elo gain rate where a large portion of the players who have gained the most elo per month seem to cluster around 100-300 games per month, which comes out to a handful of games per day. That may be evidence that playing at least a few games here and there on a consistent basis will give the best chances at improving, but that could also be due to the fact that there are just more data points for players playing at that rate. 
+However, there does seem to be a sweet spot in the rating gain rate where a large portion of the players who have gained the most elo per month seem to cluster around 100-300 games per month, which comes out to a handful of games per day. That may be evidence that playing at least a few games here and there on a consistent basis will give the best chances at improving, but that could also be due to the fact that there are just more data points for players playing at that rate. 
 
 In case you're curious about how people gained 100+ points per month, I checked the data and the majority of them are either cheaters, smurf accounts, or bots. For reference, the most improved player is (as of oct 2021) an 11 year old world chess champion from the Ukraine. His rate of improvement averaged out to 33 points per month over a period of 6 years.
 
@@ -213,7 +213,7 @@ The most active player in this dataset played 250,516 games (mostly bullet games
 - Highest (non-bot): 3196 by penguingim1 and Kuuhaku\_1
 - Highest (non-bot blitz): 3031 by penguingim1, Ultimate\_SHSL\_Gamer, BehaardTheBonobo, galbijjim, Kuuhaku\_1, BeepBeepImAJeep, keithster
 
-**How many games are played per elo band?** 
+**How many games are played per rating band?** 
 
 ![Alt test](./analytics/plots/games_per_elo_bracket.png?raw=true)
 
@@ -226,20 +226,20 @@ Here's the number of games players have played in this dataset:
 - Average games played: 482
 - Maximum games played: 250,516
 
-**Which elo bands analyze their games the most?**
+**Which rating bands analyze their games the most?**
 
 ![Alt test](./analytics/plots/pct_analyzed_per_elo_bracket.png?raw=true)
 
 Most analyzed games are clustered at the top levels, probably by viewers or possibly by someone who decided to have a bunch of master games analyzed in bulk. 1800s seem to analyze the least. Perhaps at the higher levels, there is less need to rely on the computer and more reliance on player skill. Intuitively, that seems to make sense, at least from what I've seen strong chess players on youtube do. But then again, the difference is really small (only 1-2%) and probably is not significant.
 
-**What is the typical change between players' starting and ending elo ratings?**
+**What is the typical change between players' starting and ending ratings?**
 
-- **Most negative change (banned):** -1045.96. This account (laurent17320) was closed for violating terms of service (probably for intentionally losing games). They went from 1950 down to 895 elo.
-- **Most negative change (not banned):** -1012.33. This account (Gyarados) went from 2145 elo down to 1133. I think this account used to be played by a strong player around the year 2016, then was handed off to a weaker player in 2017 who proceeded to drop the rating down to where it is now.
+- **Most negative change (banned):** -1045.96. This account (laurent17320) was closed for violating terms of service (probably for intentionally losing games). They went from 1950 down to 895 rating.
+- **Most negative change (not banned):** -1012.33. This account (Gyarados) went from 2145 rating down to 1133. I think this account used to be played by a strong player around the year 2016, then was handed off to a weaker player in 2017 who proceeded to drop the rating down to where it is now.
 - **Median change:** 0. Most players don't play more than ~30 or so games before quitting lichess permanently, much less so staying active longer than 1 month. Hence why the most common rating change is 0.
 - **Mean change:** 22. As expected, players should tend to get stronger over time, but the average is probably brought down by the majority of casual, non-serious chess players on lichess.
 - **Most positive change:** 1404. This is held by the account PeshkaCh, as of this writing (Oct 2021) an 11 year old world chess champion from ukraine. Browsing some of the other top accounts, some of them are bots, many of them have been closed.
-- **Highest positive change/month:** 897. I have explored accounts with the greatest elo change/month, however most of them are either bots with a very short activity timespan (ok\_zabu) or accounts that have been closed/banned probably for cheating (as expected). I don't think these accounts are particularly interesting. For reference, the account with the most positive change had an average increase of 33.45 elo/month.
+- **Highest positive change/month:** 897. I have explored accounts with the greatest rating change/month, however most of them are either bots with a very short activity timespan (ok\_zabu) or accounts that have been closed/banned probably for cheating (as expected). I don't think these accounts are particularly interesting. For reference, the account with the most positive change had an average increase of 33.45 elo/month.
 
 ![Alt test](./screenshots/peschkach_bio.png?raw=true)
 ![Alt test](./screenshots/peschkach.png?raw=true)
