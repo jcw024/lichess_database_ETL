@@ -1,8 +1,7 @@
 from kafka import KafkaConsumer
 from data_process_util import *
 from database_util import *
-from CONFIG import DB_NAME, DB_USER, BATCH_SIZE #enter these values in CONFIG.public.py, then change CONFIG to CONFIG.public
-from datetime import datetime                   #or rename CONFIG.public.py to CONFIG.py
+from datetime import datetime
 from tqdm import tqdm
 from collections import OrderedDict
 from psycopg2.errors import InFailedSqlTransaction
@@ -21,6 +20,7 @@ def process_file(url):
     DB_PASSWORD = os.getenv('POSTGRESQL_PASSWORD','password')
     HOSTNAME = os.getenv('HOSTNAME','localhost')
     PORT = os.getenv('POSTGRESQL_PORT', '5432')
+    BATCH_SIZE = int(os.getenv('BATCH_SIZE', 10000))
     connect_string = "host=" + HOSTNAME + " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD \
             + " port=" + PORT
     conn = psycopg2.connect(connect_string)

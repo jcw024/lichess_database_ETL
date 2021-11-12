@@ -69,6 +69,7 @@ services:
       - POSTGRESQL_DATABASE=lichess_games
       - POSTGRESQL_PASSWORD=password
       - POSTGRESQL_USERNAME=username
+      - BATCH_SIZE=10000
       - HOSTNAME=postgresql-chess
         #- POSTGRESQL_PORT=5000
     depends_on:
